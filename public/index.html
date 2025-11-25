@@ -990,26 +990,30 @@ form.addEventListener('submit', e => {
 
     // Сертифицирани од DIAB-REG
     // Сертифицирани од DIAB-REG
-document.getElementById('btnCertified').addEventListener('click', async ()=>{
-  initial.classList.add('hidden');
-  certified.classList.remove('hidden');
+document.getElementById('btnCertified').addEventListener('click', async () => {
+  try {
+    const res = await fetch('/api/public/certified');
+    if (!res.ok) throw new Error();
 
-  // Ова е ја изменивме:
-  const res = await fetch('/api/admin/applications', { credentials: 'include' });
+    const list = await res.json();
 
-  if (!res.ok) return alert('Грешка при вчитување');
+    const html = list.map(c => `
+      <li>
+        <strong>${c.company}</strong><br>
+        Производ: ${c.product}<br>
+        Потврда: ${c.cert_number}<br>
+        <a href="/api/certificate/pdf/${c.id}" target="_blank">PDF</a> |
+        <a href="/confirm/${c.cert_number}" target="_blank">Види потврда</a>
+      </li>
+    `).join('');
 
-  const apps = (await res.json()).filter(x=>x.status==='Completed');
-  const tb = certified.querySelector('tbody');
-  tb.innerHTML = apps.map(a=>{
-    const d = new Date(a.createdAt).toLocaleString('mk-MK');
-    return `<tr>
-      <td>${a._id}</td><td>${d}</td><td>${a.company.name}</td>
-      <td>${a.product}</td><td>${a.contact}</td><td>${a.email}</td>
-      <td>${a.status}</td><td>${a.cert_number||''}</td>
-    </tr>`;
-  }).join('');
+    // покажи popup...
+  }
+  catch (err) {
+    alert('Грешка при вчитување');
+  }
 });
+
 
     function applyCertFilters(){
       const f={
