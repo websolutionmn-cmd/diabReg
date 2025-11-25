@@ -1,0 +1,5 @@
+2025-06-07T15:49:39.866Z | alice | change_status | {"id":"68444af2f22711cba0d9b564","status":"In Process"}
+2025-06-07T15:49:42.697Z | alice | change_status | {"id":"68444c1811d4641f7e81ecee","status":"Pending"}
+2025-11-25T20:44:50.788Z | system | APPLICATION_CREATED | {"appId":"58e4079e-a60a-475c-bc1b-a66021dd5e44","companyId":"470a6a71-c01b-4c11-abf7-9db43c9f835b"}
+2025-11-25T20:45:34.206Z | Administrator | STATUS_CHANGE | {"appId":"58e4079e-a60a-475c-bc1b-a66021dd5e44","status":"Completed"}
+2025-11-25T20:45:36.124Z | Administrator | CERTIFICATE_ISSUED | {"appId":"58e4079e-a60a-475c-bc1b-a66021dd5e44","cert_number":"DIAB-20251125-1764103535706"}

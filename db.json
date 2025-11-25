@@ -1,0 +1,38 @@
+{
+  "companies": [
+    {
+      "id": "470a6a71-c01b-4c11-abf7-9db43c9f835b",
+      "matichen_broj": "1",
+      "name": "1",
+      "email": "a@a.a",
+      "passwordHash": "$2a$10$/7MH/KgVRl3.5gY3YcHwhO1SnuVunGGZsCprLeK3I5UUE7NbwgrUK",
+      "createdAt": "2025-11-25T20:44:05.684Z"
+    }
+  ],
+  "applications": [
+    {
+      "id": "58e4079e-a60a-475c-bc1b-a66021dd5e44",
+      "companyId": "470a6a71-c01b-4c11-abf7-9db43c9f835b",
+      "contact": "a",
+      "email": "a@a.a",
+      "category": "Потрошен материјал за мерење/инјектирање",
+      "product": "a",
+      "docs": [
+        "1764103490769-165224378_footer.png"
+      ],
+      "status": "Completed",
+      "cert_number": "DIAB-20251125-1764103535706",
+      "completedBy": "Administrator",
+      "statusHistory": [
+        {
+          "status": "Completed",
+          "message": "adasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjnadasdasfdasfkdjsfdsjfdjsnkjn",
+          "user": "Administrator",
+          "timestamp": "2025-11-25T20:45:34.205Z"
+        }
+      ],
+      "createdAt": "2025-11-25T20:44:50.787Z",
+      "updatedAt": "2025-11-25T20:45:35.706Z"
+    }
+  ]
+}
