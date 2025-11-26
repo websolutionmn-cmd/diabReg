@@ -22,55 +22,71 @@
 <div class="min-h-screen flex flex-col">
 
   <!-- ================= HEADER ================= -->
-  <header class="bg-gradient-to-r from-cyan-800 via-cyan-700 to-sky-500 text-white shadow-xl">
-    <div class="max-w-6xl mx-auto px-4 py-5 pl-3 md:pl-0 flex items-center justify-between gap-4">
- 
+  <!-- ================= HEADER ================= -->
+<header class="bg-gradient-to-r from-cyan-800 via-cyan-700 to-sky-500 text-white shadow-xl relative">
 
-      <div class="flex items-center gap-4">
-        <img src="/logo.jpg" alt="DIAB-REG Logo" class="h-20 w-auto rounded-xl shadow-lg bg-white/80 p-1">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-bold leading-tight">
-            Систем за стандардизирани потврди и регулација
-          </h1>
-          <p class="text-sm md:text-base text-sky-100/90">
-            на производи наменети за сите лица со дијабетес
-          </p>
-        </div>
-      </div>
+  <!-- LANGUAGE SELECT TOP-LEFT -->
+  <!-- TOP BAR: WARNING + LANGUAGE SELECT -->
+<div class="w-full flex items-center justify-between px-4 pt-4">
 
-      <!-- Language selector (ист ID) -->
-<div class="absolute top-4 right-4 z-50">
-        <select id="langSelect"
-                class="bg-white text-slate-800 px-3 py-2 rounded-lg shadow-md text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400">
-          <option value="http://localhost:3000/" selected>Македонски</option>
-          <option value="http://localhost:3000/en.html">English</option>
-          <option value="http://localhost:3000/al.html">Shqip</option>
-        </select>
-      </div>
+  <!-- Warning text -->
+  <p class="text-red-600 text-[10px] md:text-xs font-semibold leading-tight max-w-[75%]">
+    Системот сеуште не е валидиран. Секоја потврда издадена моментално преку овој систем не е важечка.
+    Служи исклучиво за тестирање пред да биде официјално пуштен во употреба.
+  </p>
+
+  <!-- Language selector -->
+  <select id="langSelect"
+    class="bg-white text-slate-800 ml-2 px-3 py-2 rounded-lg shadow-md text-sm font-medium border border-slate-300
+           focus:outline-none focus:ring-2 focus:ring-sky-400">
+    <option value="http://localhost:3000/" selected>Македонски</option>
+    <option value="http://localhost:3000/en.html">English</option>
+    <option value="http://localhost:3000/al.html">Shqip</option>
+  </select>
+
+</div>
+
+
+  <!-- HEADER CONTENT BELOW LANGUAGE SELECT -->
+  <div class="max-w-6xl mx-auto px-4 pb-6 pt-4 flex items-center gap-4 mt-2">
+
+    <img src="/logo.jpg" alt="DIAB-REG Logo"
+         class="h-16 md:h-20 w-auto rounded-xl shadow-lg bg-white/80 p-1">
+
+    <div>
+      <h1 class="text-lg md:text-xl font-bold leading-tight">
+        Систем за стандардизирани потврди и регулација
+      </h1>
+      <p class="text-xs md:text-sm text-sky-100/90 mt-1">
+        на производи наменети за сите лица со дијабетес
+      </p>
     </div>
 
-    <!-- Поддржано од -->
-<div id="supported" class="bg-white border-t border-slate-200 shadow-inner">
-      <div class="max-w-6xl mx-auto px-4 py-4 text-center">
-       <p class="font-semibold text-sm tracking-wide uppercase text-sky-100 mb-3">
+  </div>
 
-          Поддржано од:
-        </p>
-        <div class="flex flex-wrap justify-center items-center gap-6">
-          <img
-            class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBMbxYIyarbBG_HV1F3IABrK05X1i3zJHUA&s"
-            alt="Лого 1"
-          >
-          <img
-            class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1cPOdSQDz5IeQzb7-284mp2ndLup06Ks6Cw&s"
-            alt="Лого 2"
-          >
-        </div>
+  <!-- SUPPORTED SECTION (white background) -->
+  <div id="supported" class="bg-white border-t border-slate-200 shadow-inner">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-center">
+      <p class="font-semibold text-sm tracking-wide uppercase text-slate-700 mb-3">
+        Поддржано од:
+      </p>
+      <div class="flex flex-wrap justify-center items-center gap-6">
+        <img
+          class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBMbxYIyarbBG_HV1F3IABrK05X1i3zJHUA&s"
+          alt="Лого 1"
+        >
+        <img
+          class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1cPOdSQDz5IeQzb7-284mp2ndLup06Ks6Cw&s"
+          alt="Лого 2"
+        >
       </div>
     </div>
-  </header>
+  </div>
+
+</header>
+
 
   <!-- ================= MAIN ================= -->
   <main class="flex-1">
