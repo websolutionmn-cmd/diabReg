@@ -686,19 +686,24 @@ app.get('/agent', (req, res) => {
 // Public: list all certified (Completed) applications
 app.get('/api/public/certified', (req, res) => {
   const db = loadDb();
+
   const certified = db.applications
     .filter(a => a.status === 'Completed')
-    .map(a => ({
-      id: a.id,
-      company: a.company || 'N/A',
-      product: a.product,
-      category: a.category || '',
-      cert_number: a.cert_number,
-      updatedAt: a.updatedAt,
-    }));
+    .map(a => {
+      const company = db.companies.find(c => c.id === a.companyId);
+      return {
+        id: a.id,
+        company: company ? company.name : 'N/A',
+        product: a.product,
+        category: a.category || '',
+        cert_number: a.cert_number,
+        updatedAt: a.updatedAt
+      };
+    });
 
   res.json(certified);
 });
+
 // Start
 app.listen(PORT, () => {
   console.log(`🚀 DIAB-REG JSON server listening on port ${PORT}`);
