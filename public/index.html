@@ -4,1271 +4,849 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DIAB-REG Application</title>
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    
-    :root {
-      --primary: #2563eb;
-      --primary-light: #60a5fa;
-      --secondary: #10b981;
-      --accent: #f97316;
-      --light: #f9fafb;
-      --dark: #0f172a;
-      --muted: #6b7280;
-      --card-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
-      --radius-lg: 18px;
-    }
-
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      margin: 0; padding: 0;
-      background: var(--light);
-      color: var(--dark);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
     }
-    .wrapper {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: #fff;
-      min-height: 100vh;
-      box-shadow: var(--card-shadow);
-    }
-    @media (min-width: 768px) {
-      .wrapper {
-        margin: 20px auto;
-        border-radius: 12px;
-      }
-    }
-    .hidden { display: none; }
-    .card-container {
-      display: flex;
-      gap: 30px;
-      justify-content: center;
-      margin: 40px 0;
-      flex-wrap: wrap;
-    }
-    .card {
-      flex: 1;
-      min-width: 280px;
-      padding: 2rem 1.5rem;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 1.1rem;
-      color: var(--dark);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background: white;
-      box-shadow: var(--card-shadow);
-      border: 1px solid #e0f2f7;
-      position: relative;
-      overflow: hidden;
-      background-color: #f9fdff;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      border-color: #cbd5e0;
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 4px;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      transform: scaleX(0);
-      transform-origin: right;
-      transition: transform 0.3s ease-out;
-    }
-    .card:hover::before {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-    .card h3 {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--dark);
-    }
-    .card p {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin: 0;
-    }
-    .small-card {
-      flex: 0 0 auto;
-      min-width: 180px;
-      padding: 20px;
-      font-size: 1rem;
-    }
-    .small-card h3 {
-      font-size: 1rem;
-      margin: 0 0 6px;
-    }
-    .small-card p {
-      margin: 0;
-      color: #666;
-      font-size: 0.9rem;
-    }
-    h1 {
-      margin-top: 0;
-      color: var(--dark);
-      font-weight: 700;
-      font-size: 2.4rem;
-      line-height: 1.3;
-    }
-    h2 {
-      color: var(--dark);
-      font-weight: 600;
-      font-size: 1.8rem;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-      margin-top: 0;
-    }
-    .form-container {
-      background: #f9fdff;
-      border-radius: 12px;
-      padding: 30px;
-      margin-top: 30px;
-      border: 1px solid #d9eef4;
-      box-shadow: 0 5px 20px rgba(145,192,208,0.1);
-    }
-    form { max-width: 600px; margin: 0 auto; }
-    label {
-      display: block;
-      margin: 20px 0 8px;
-      font-weight: 500;
-      color: var(--dark);
-      font-size: 0.95rem;
-    }
-    input, select {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.25rem;
-      font-size: 1rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      background: #fff;
-      transition: all 0.2s ease-out;
-      box-sizing: border-box;
-    }
-    input:focus, select:focus {
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-      background: #fff;
-    }
-    button {
-      width: 100%;
-      padding: 14px 24px;
-      margin: 15px 0;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      box-shadow: var(--card-shadow);
-      position: relative;
-      overflow: hidden;
-      border: 2px solid transparent;
-    }
-    button:hover {
-      background: var(--primary-light);
-      transform: translateY(-2px);
-      box-shadow: var(--card-shadow-hover);
-      border-color: rgba(255,255,255,0.2);
-    }
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .back-btn {
-      background: white;
-      border: 2px solid #d9eef4;
-      color: var(--primary);
-      cursor: pointer;
-      font-size: 0.9rem;
-      padding: 8px 16px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .back-btn:hover {
-      background: #f0f9fc;
-      border-color: var(--secondary);
-      color: var(--primary-light);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    @keyframes ripple {
-      0% { transform: scale(0); opacity: 0.5; }
-      100% { transform: scale(20); opacity: 0; }
-    }
-    /* Tables */
-    #myAppsSection table, #certifiedSection table {
-      width: 100%; border-collapse: separate; border-spacing: 0;
-      margin-top: 25px; background: #fff; border-radius: 10px;
-      overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.05);
-    }
-    #myAppsSection th, #myAppsSection td,
-    #certifiedSection th, #certifiedSection td {
-      border-bottom: 1px solid #eee; padding: 12px 15px; text-align: left;
-    }
-    #myAppsSection th, #certifiedSection th {
-      background: var(--primary); color: #fff; font-weight: 500;
-    }
-    #myAppsSection tr:hover td, #certifiedSection tr:hover td {
-      background: #f8f9fa;
-    }
-    #statusResult {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
-      border-left: 4px solid var(--secondary);
-    }
-    #statusResult strong {
-      display: inline-block; min-width: 100px; color: var(--dark);
-    }
-    /* Documents list */
-    #docsList ul { list-style: none; padding-left: 0; }
-    #docsList li { margin: 5px 0; }
-    /* Certified filters */
-    #certifiedSection .filter-options {
-      display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0;
-    }
-    #certifiedSection .filter-options label {
-      flex: 1; min-width: 150px; font-size: 0.9rem;
-    }
-	
-	 #gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-      width: 90%;
-      max-width: 900px;
-      margin: 20px auto;
-    }
-    #gallery img {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-    }
-	.frame {
-  width: 200px;      /* или колку и да сакаш */
-  height: 200px;     /* иста висина за да биде квадрат */
-  overflow: hidden;  /* ги скрива вишоците на сликата */
-  border: 2px solid #ccc;
-  border-radius: 8px;
-}
-
-/* Сликата внатре да пополни цел контејнер без да се деформира */
-.frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* можеш и contain ако сакаш целата слика да се гледа */
-}
-    /* Поддржано од */
-    #supported {
-      text-align: center;
-      margin: 30px 0;
-    }
-    #supported p {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .fixed-logo {
-      width: 120px;
-      margin: 0 15px;
-      vertical-align: middle;
-    }
-	
-	/* Кога е оневозможено, сиво и курсорот "not-allowed" */
-#submitBtn:disabled {
-  background: #cccccc;       /* светло сива заднина */
-  color: #666666;            /* темно сиво писмо */
-  cursor: not-allowed;       /* курсор што означува дека е неактивно */
-  opacity: 0.7;              /* малку транспарентно */
-}
-
-/* Кога е овозможено, врати го оригиналот */
-#submitBtn:not(:disabled) {
-  background: linear-gradient(135deg, #2b6cb0, #4299e1);
-  color: white;
-  cursor: pointer;
-}
-
-/* Намалуваме празен простор после самиот чекбокс */
-#acceptTerms {
-  margin-right: 1px;  /* или колку што ти треба, нпр. 4px */
-}
-
-/* Доколку си ставил <a id="termsLink">, може дополнително да го приближиш */
-#termsLink {
-  margin-left: 0;         /* отстранувајќи го евентуалниот десен маргин */
-  text-decoration: underline; /* опционално за подобра видливост */
-  color: var(--primary);      /* или кој било тон што одговара */
-}
-	/* јазици селектор */
-#langSelect {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #fff;
-  color: var(--dark);
-  cursor: pointer;
-    text-align: center;            /* за WebKit-базирани прелистувачи */
-  text-align-last: center;       /* за новите прелистувачи */
-  -moz-text-align-last: center;  /* за Firefox */
-  -ms-text-align-last: center;   /* за IE/Edge */
-  
-}
-
   </style>
 
-  <link rel="stylesheet" href="/styles.css"/>
+  <!-- (опционално) твојот стар external /styles.css ако ти треба за нешто друго -->
+  <!-- <link rel="stylesheet" href="/styles.css"/> -->
 </head>
-<body>
-  <div class="wrapper">
+<body class="bg-slate-100 text-slate-900">
 
-    <header style="background: linear-gradient(135deg, #1a6a82, #2a7f9b); color: white; padding: 2rem 1rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-      <div style="max-width: 800px; margin: 0 auto;">
-	  <div style="position: relative;">
-  <!-- LANGUAGE SWITCHER -->
-  <select id="langSelect">
-  <option value="http://localhost:3000/" selected>--------Македонски--------</option>
-  <option value="http://localhost:3000/en.html">English</option>
-  <option value="http://localhost:3000/al.html">Shqip</option>
-</select>
+<div class="min-h-screen flex flex-col">
+
+  <!-- ================= HEADER ================= -->
+  <header class="bg-gradient-to-r from-cyan-800 via-cyan-700 to-sky-500 text-white shadow-xl">
+    <div class="max-w-6xl mx-auto px-4 py-5 pl-3 md:pl-0 flex items-center justify-between gap-4">
  
-</div>
-<BR><BR><BR><BR>
 
-        <img src="/logo.jpg" alt="DIAB-REG Logo" style="height: 200px; margin-bottom: 1rem;">
-		
-        <h1 style="font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem; color: white;">Систем за стандардизирани потврди и регулација</h1>
-        <p style="font-size: 1.1rem; opacity: 0.9; margin: 0;">
-          на производи наменети за сите лица со дијабетес
-        </p>
-		
-		 <div id="supported">
-    <p>Поддржано од:</p>
-    <!-- Лого 1 (Base64) -->
-    <img
-      class="fixed-logo"
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBMbxYIyarbBG_HV1F3IABrK05X1i3zJHUA&s"
-      alt="Лого 1"
-    >
-    <!-- Лого 2 (од URL) -->
-    <img
-      class="fixed-logo"
-      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1cPOdSQDz5IeQzb7-284mp2ndLup06Ks6Cw&s"
-      alt="Лого 2"
-    >
-  </div>
-        <button id="btnMyApps" class="hidden" style="margin-top: 1.5rem; background: white; color: #2b6cb0; border: none; padding: 0.5rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-          Мои апликации
-        </button>
-      </div>
-    </header>
-    <div style="padding: 2rem;">
-
-    <!-- Initial Section -->
-    <div id="initialSection">
-      <div style="text-align:center; margin-bottom:20px;">
-        <div id="btnCertified" class="card small-card">
-          <h3>Потврдени</h3>
-          <p>од DIAB-REG</p>
+      <div class="flex items-center gap-4">
+        <img src="/logo.jpg" alt="DIAB-REG Logo" class="h-20 w-auto rounded-xl shadow-lg bg-white/80 p-1">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold leading-tight">
+            Систем за стандардизирани потврди и регулација
+          </h1>
+          <p class="text-sm md:text-base text-sky-100/90">
+            на производи наменети за сите лица со дијабетес
+          </p>
         </div>
       </div>
-      <div class="card-container">
-        <div id="showLoginBtn" class="card"><h3>Најави се</h3><p>Имате профил?</p></div>
-        <div id="showRegisterBtn" class="card"><h3>Регистрирај се</h3><p>Нов корисник?</p></div>
+
+      <!-- Language selector (ист ID) -->
+<div class="absolute top-4 right-4 z-50">
+        <select id="langSelect"
+                class="bg-white text-slate-800 px-3 py-2 rounded-lg shadow-md text-sm font-medium border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400">
+          <option value="http://localhost:3000/" selected>Македонски</option>
+          <option value="http://localhost:3000/en.html">English</option>
+          <option value="http://localhost:3000/al.html">Shqip</option>
+        </select>
       </div>
-      <div class="card-container">
-        <!-- Овие два се исти “cards” само помали -->
-        <div id="btnDocs"     class="card small-card"><h3>Документи</h3><p>и регулативи</p></div>
-        <div id="showPriceBtn" class="card small-card"><h3>Ценовник</h3></div>
-      </div>
-      <div id="gdprMessage" style="margin-top:30px; padding:20px; background:#f8f9fa;
-                                 border-radius:8px; border-left:4px solid var(--secondary);">
-        <strong>DIAB-REG собира, обработува и чува само податоци кои се однесуваат на правни субјекти:</strong>
-        <ul>
-          <li>Назив на компанија</li>
-          <li>ЕМБС</li>
-          <li>Назив на производ</li>
-          <li>Категорија</li>
-          <li>Датум</li>
-        </ul>
-        <p>Без лични податоци. Нема колачиња за следење.</p>
-      </div>
-      <div id="docsList" style="margin-top:20px;"></div>
     </div>
 
-    <!-- Сертифицирани барања -->
-    <div id="certifiedSection" class="hidden">
-      <button id="backFromCertified" class="back-btn">&larr; Назад</button>
-      <h2>Барања за стандардизирана потврда</h2>
-      <div class="filter-options">
-        <label>ID: <input type="text" id="filterIdCert"    placeholder="Filter по ID"/></label>
-        <label>Created At: <input type="text" id="filterDateCert"  placeholder="Filter по Датум"/></label>
-        <label>Company: <input type="text" id="filterCompanyCert" placeholder="Filter по Компанија"/></label>
-        <label>Product: <input type="text" id="filterProductCert" placeholder="Filter по Продукт"/></label>
-        <label>Status:  <input type="text" id="filterStatusCert"  value="Completed" disabled/></label>
+    <!-- Поддржано од -->
+<div id="supported" class="bg-white border-t border-slate-200 shadow-inner">
+      <div class="max-w-6xl mx-auto px-4 py-4 text-center">
+       <p class="font-semibold text-sm tracking-wide uppercase text-sky-100 mb-3">
+
+          Поддржано од:
+        </p>
+        <div class="flex flex-wrap justify-center items-center gap-6">
+          <img
+            class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBMbxYIyarbBG_HV1F3IABrK05X1i3zJHUA&s"
+            alt="Лого 1"
+          >
+          <img
+            class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1cPOdSQDz5IeQzb7-284mp2ndLup06Ks6Cw&s"
+            alt="Лого 2"
+          >
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th><th>Created At</th><th>Company</th><th>Product</th>
-            <th>Contact</th><th>Email</th><th>Status</th><th>Conf. No.</th>
+    </div>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main class="flex-1">
+    <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
+
+      <!-- ===== INITIAL SECTION ===== -->
+      <section id="initialSection" class="space-y-8">
+
+  <!-- === Login + Register === -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- Login -->
+    <div id="showLoginBtn"
+         class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer p-7 flex flex-col items-center justify-center text-center border border-slate-200">
+      <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-700 mb-3 text-xl">
+        🔐
+      </span>
+      <h3 class="text-xl font-bold text-slate-900">Најави се</h3>
+      <p class="text-sm text-slate-500 mt-1">Влез во системот</p>
+    </div>
+
+    <!-- Register -->
+    <div id="showRegisterBtn"
+         class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition cursor-pointer p-7 flex flex-col items-center justify-center text-center border border-slate-200">
+      <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 text-purple-700 mb-3 text-xl">
+        ➕
+      </span>
+      <h3 class="text-xl font-bold text-slate-900">Регистрирај се</h3>
+      <p class="text-sm text-slate-500 mt-1">Креирај нов профил</p>
+    </div>
+
+  </div>
+
+  <!-- === Highlighted / Certified === -->
+  <div class="mt-4">
+
+    <div id="btnCertified"
+         class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl shadow-xl hover:shadow-2xl transition cursor-pointer p-10 flex flex-col items-center justify-center text-center border border-emerald-600">
+
+      <span class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/20 text-white text-3xl font-bold mb-4">
+        ✓
+      </span>
+
+      <h3 class="text-3xl font-extrabold tracking-wide">
+        Потврдени производи
+      </h3>
+
+      <p class="text-white/90 text-base mt-2">
+        Преглед на сертифицирани и одобрени апликации
+      </p>
+
+    </div>
+  </div>
+
+  <!-- === Documents & Price === -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+    <div id="btnDocs"
+         class="bg-white rounded-2xl shadow-md hover:shadow-xl transition cursor-pointer p-6 text-center border border-slate-200">
+      <h3 class="text-lg font-semibold text-slate-900">Документи</h3>
+      <p class="text-sm text-slate-500 mt-1">и регулативи</p>
+    </div>
+
+    <div id="showPriceBtn"
+         class="bg-white rounded-2xl shadow-md hover:shadow-xl transition cursor-pointer p-6 text-center border border-slate-200">
+      <h3 class="text-lg font-semibold text-slate-900">Ценовник</h3>
+      <p class="text-sm text-slate-500 mt-1">детален приказ</p>
+    </div>
+
+  </div>
+
+  <!-- GDPR -->
+  <div id="gdprMessage"
+       class="bg-white rounded-2xl shadow-md border border-emerald-100 p-6">
+    <strong class="block text-slate-900">
+      DIAB-REG собира, обработува и чува само податоци кои се однесуваат на правни субјекти:
+    </strong>
+    <ul class="list-disc ml-5 mt-3 text-slate-700 text-sm space-y-1">
+      <li>Назив на компанија</li>
+      <li>ЕМБС</li>
+      <li>Назив на производ</li>
+      <li>Категорија</li>
+      <li>Датум</li>
+    </ul>
+    <p class="text-slate-500 text-xs mt-2">
+      Без лични податоци. Нема колачиња за следење.
+    </p>
+  </div>
+
+  <div id="docsList" class="text-sm text-slate-700"></div>
+
+</section>
+
+
+      <!-- ===== CERTIFIED SECTION ===== -->
+      <section id="certifiedSection" class="hidden space-y-6">
+
+  <button id="backFromCertified"
+          class="inline-flex items-center text-sm font-medium text-sky-700 hover:text-sky-900 transition duration-200">
+    &larr; Назад
+  </button>
+
+  <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+    Потврдени производи и сертификати
+  </h2>
+
+  <!-- FILTERS -->
+  <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 space-y-4">
+
+    <h3 class="text-lg font-semibold text-slate-800">Филтрирање</h3>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <input id="filterIdCert" type="text"
+             placeholder="ID..."
+             class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sky-400"/>
+
+      <input id="filterDateCert" type="text"
+             placeholder="Датум..."
+             class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sky-400"/>
+
+      <input id="filterCompanyCert" type="text"
+             placeholder="Компанија..."
+             class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sky-400"/>
+
+      <input id="filterProductCert" type="text"
+             placeholder="Продукт..."
+             class="p-2.5 border rounded-lg text-sm focus:ring-2 focus:ring-sky-400"/>
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold p-4">
+      Сертифицирани барања
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+
+        <thead class="bg-slate-800 text-white">
+          <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+
+            <th class="px-4 py-3 text-left">ID</th>
+            <th class="px-4 py-3 text-left">Created At</th>
+            <th class="px-4 py-3 text-left">Company</th>
+            <th class="px-4 py-3 text-left">Product</th>
+            <th class="px-4 py-3 text-left">Contact</th>
+            <th class="px-4 py-3 text-left">Email</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Certificate</th>
           </tr>
         </thead>
-        <tbody></tbody>
+
+        <tbody class="divide-y divide-slate-100">
+          <!-- POPULATED BY JS -->
+        </tbody>
+
       </table>
     </div>
 
-    <!-- Login Section -->
-    <div id="loginSection" class="hidden">
-      <button id="backFromLogin" class="back-btn">&larr; Врати се на почеток</button>
-      <div class="form-container">
-        <h2>Најава</h2>
-        <form id="loginForm">
-          <label>Матичен број (ЕМБС)</label>
-          <input type="text" id="loginMat" required placeholder="Внесете го вашиот матичен број"/>
-          <label>Лозинка</label>
-          <input type="password" id="loginPass" required placeholder="Внесете ја вашата лозинка"/>
-          <button type="submit">Најави се</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Registration Section -->
-    <div id="registerSection" class="hidden">
-  <button id="backFromRegister" class="back-btn">&larr; Врати се на почеток</button>
-  <div class="form-container">
-    <h2>Регистрација</h2>
-    <form id="registerForm">
-      <label>Матичен број (ЕМБС)</label>
-      <input type="text" name="matichen_broj" required/>
-
-      <label>Име на компанија</label>
-      <input type="text" name="name" required/>
-
-      <label>Е-пошта</label>
-      <input type="email" name="email" required/>
-
-      <label>Лозинка</label>
-      <input type="password" name="password" id="password" required/>
-
-      <button type="submit" id="registerBtn">Регистрирај се</button>
-    </form>
   </div>
-</div>
 
-    <!-- After Login Section -->
-    <div id="afterLoginSection" class="hidden">
-      <button id="backFromAfterLogin" class="back-btn">&larr; Одјави се</button>
-      <div class="form-container">
-        <h2>Добредојдовте!</h2>
-        <p>Можете да поднесувате апликации и да ги проверувате сертификатите.</p>
+</section>
 
-        <!-- Application Form -->
-        <div id="applySection" style="margin-top:30px;">
-          <h3>Поднеси нова апликација</h3>
-          <form id="applicationForm" action="/apply-and-pay" method="POST" enctype="multipart/form-data">
-            <label>Контакт лице</label>
-            <input type="text" name="contact" required/>
-            <label>Контакт е-пошта</label>
-            <input type="email" name="email" required/>
-			<label>Категорија</label>
-  <select name="category" id="categorySelect" required>
-    <option value="">– Избери –</option>
-    <option value="Додатоци и потрошен материјал">Додатоци и потрошен материјал (45 €)</option>
-    <option value="Потрошен материјал за мерење/инјектирање">Потрошен материјал за мерење/инјектирање (65 €)</option>
-    <option value="Уреди за мерење">Уреди за мерење (125 €)</option>
-    <option value="Уреди за апликација на инсулин">Уреди за апликација на инсулин (170 €)</option>
-    <option value="Автоматизирани системи">Автоматизирани системи (260 €)</option>
-  </select>
-            <label>Име на продукт</label>
-            <input type="text" name="product" required/>
-            <label>Прикачете документи</label>
-            <input type="file" name="docs" multiple required/>
-			<label style="display:flex; align-items:center; gap:8px; margin-top:1rem;">
-  <input type="checkbox" id="acceptTerms" />
- 
-  <a href="/uslov/uslov.pdf" id="termsLink" target="_blank">Ги прифаќам условите за наплата по фактура согласно DIAB-REG</a>
 
-</label>
+      <!-- ===== LOGIN SECTION ===== -->
+      <section id="loginSection" class="hidden">
+        <button id="backFromLogin"
+                class="inline-flex items-center text-sm font-medium text-sky-700 hover:text-sky-900 mb-4">
+          &larr; Врати се на почеток
+        </button>
 
-<button id="submitBtn" type="submit" disabled>Поднеси Апликација</button>
-
+        <div class="max-w-md mx-auto bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+          <h2 class="text-xl font-semibold text-center text-slate-900">Најава</h2>
+          <form id="loginForm" class="mt-5 space-y-4">
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Матичен број (ЕМБС)</label>
+              <input type="text" id="loginMat" required
+                     placeholder="Внесете го вашиот матичен број"
+                     class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+            </div>
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Лозинка</label>
+              <input type="password" id="loginPass" required
+                     placeholder="Внесете ја вашата лозинка"
+                     class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+            </div>
+            <button type="submit"
+                    class="w-full py-2.5 rounded-lg bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 transition">
+              Најави се
+            </button>
           </form>
         </div>
+      </section>
 
-        <!-- Status Check -->
-        <div id="statusSection" class="hidden" style="margin-top:40px;">
-          <hr/>
-          <h3>Проверка статус</h3>
-          <div style="display:flex; gap:10px; align-items:center; margin-top:15px;">
-            <input type="text" id="statusId" placeholder="Внесете ID на апликација" style="flex:1;"/>
-            <button id="checkBtn" style="width:auto; padding:0 20px;">Провери</button>
+      <!-- ===== REGISTER SECTION ===== -->
+      <section id="registerSection" class="hidden">
+        <button id="backFromRegister"
+                class="inline-flex items-center text-sm font-medium text-sky-700 hover:text-sky-900 mb-4">
+          &larr; Врати се на почеток
+        </button>
+
+        <div class="max-w-md mx-auto bg-white rounded-2xl shadow-md border border-slate-100 p-6">
+          <h2 class="text-xl font-semibold text-center text-slate-900">Регистрација</h2>
+
+          <form id="registerForm" class="mt-5 space-y-4">
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Матичен број (ЕМБС)</label>
+              <input type="text" name="matichen_broj" required
+                     class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Име на компанија</label>
+              <input type="text" name="name" required
+                     class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Е-пошта</label>
+              <input type="email" name="email" required
+                     class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-700 mb-1">Лозинка</label>
+              <input type="password" name="password" id="password" required
+                     class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+            </div>
+
+            <button type="submit" id="registerBtn"
+                    class="w-full py-2.5 rounded-lg bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 transition">
+              Регистрирај се
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ===== AFTER LOGIN SECTION ===== -->
+      <section id="afterLoginSection" class="hidden space-y-6">
+        <button id="backFromAfterLogin"
+                class="inline-flex items-center text-sm font-medium text-rose-700 hover:text-rose-900 mb-2">
+          &larr; Одјави се
+        </button>
+
+        <div class="bg-white rounded-2xl shadow-md border border-slate-100 p-6 space-y-6">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">Добредојдовте!</h2>
+            <p class="text-sm text-slate-600 mt-1">
+              Можете да поднесувате апликации и да ги проверувате сертификатите.
+            </p>
           </div>
-          <div id="statusResult" style="margin-top:20px; padding:15px; background:#f9f9f9;border-radius:4px;"></div>
-          <button id="backFromStatus" class="back-btn" style="margin-top:20px; width:auto;">&larr; Назад</button>
-        </div>
 
-        <!-- Docs & Price in After-Login too -->
-        <div style="margin-top:30px; text-align:center;">
-          <button id="btnDocs" style="margin-right:20px; width:140px;">Документи и регулативи</button>
-          <button id="showPriceBtn" style="width:100px;">Ценовник</button>
-        </div>
-        <div id="docsList" style="margin-top:20px;"></div>
+          <!-- Поднеси апликација -->
+          <div id="applySection" class="border-t border-slate-100 pt-4 space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900">Поднеси нова апликација</h3>
+            <form id="applicationForm"
+                  action="/apply-and-pay"
+                  method="POST"
+                  enctype="multipart/form-data"
+                  class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="col-span-1">
+                <label class="block text-sm text-slate-700 mb-1">Контакт лице</label>
+                <input type="text" name="contact" required
+                       class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+              </div>
+              <div class="col-span-1">
+                <label class="block text-sm text-slate-700 mb-1">Контакт е-пошта</label>
+                <input type="email" name="email" required
+                       class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+              </div>
 
-        <div style="margin-top:30px; line-height:1.5;">
-          <p><strong>DIAB-REG собира, обработува и чува само податоци кои се однесуваат на правни субјекти:</strong></p>
-          <ul>
-            <li>Назив на компанија</li><li>ЕМБС</li><li>Назив на производ</li>
-            <li>Категорија</li><li>Датум</li>
-          </ul>
-          <p>Без лични податоци. Нема колачиња за следење.</p>
+              <div class="col-span-1">
+                <label class="block text-sm text-slate-700 mb-1">Категорија</label>
+                <select name="category" id="categorySelect" required
+                        class="w-full p-2.5 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-400">
+                  <option value="">– Избери –</option>
+                  <option value="Додатоци и потрошен материјал">Додатоци и потрошен материјал (45 €)</option>
+                  <option value="Потрошен материјал за мерење/инјектирање">Потрошен материјал за мерење/инјектирање (65 €)</option>
+                  <option value="Уреди за мерење">Уреди за мерење (125 €)</option>
+                  <option value="Уреди за апликација на инсулин">Уреди за апликација на инсулин (170 €)</option>
+                  <option value="Автоматизирани системи">Автоматизирани системи (260 €)</option>
+                </select>
+              </div>
+
+              <div class="col-span-1">
+                <label class="block text-sm text-slate-700 mb-1">Име на продукт</label>
+                <input type="text" name="product" required
+                       class="w-full p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+              </div>
+
+              <div class="col-span-1 md:col-span-2">
+                <label class="block text-sm text-slate-700 mb-1">Прикачете документи</label>
+                <input type="file" name="docs" multiple required
+                       class="w-full text-sm border rounded-lg p-2.5 bg-slate-50"/>
+              </div>
+
+              <div class="col-span-1 md:col-span-2 flex items-start gap-2 text-xs text-slate-700">
+                <input type="checkbox" id="acceptTerms"
+                       class="mt-1 h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                <a href="/uslov/uslov.pdf" id="termsLink" target="_blank"
+                   class="underline text-sky-700 hover:text-sky-900">
+                  Ги прифаќам условите за наплата по фактура согласно DIAB-REG
+                </a>
+              </div>
+
+              <div class="col-span-1 md:col-span-2">
+                <button id="submitBtn" type="submit" disabled
+                        class="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-slate-400 cursor-not-allowed">
+                  Поднеси Апликација
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Проверка статус -->
+          <div id="statusSection" class="hidden border-t border-slate-100 pt-4 space-y-3">
+            <h3 class="text-lg font-semibold text-slate-900">Проверка статус</h3>
+            <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+              <input type="text" id="statusId"
+                     placeholder="Внесете ID на апликација"
+                     class="flex-1 p-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-400"/>
+              <button id="checkBtn"
+                      class="px-4 py-2.5 rounded-lg bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 transition">
+                Провери
+              </button>
+            </div>
+            <div id="statusResult"
+                 class="text-sm bg-slate-50 border border-emerald-100 rounded-xl p-4 min-h-[40px]"></div>
+            <button id="backFromStatus"
+                    class="inline-flex items-center text-xs font-medium text-slate-600 hover:text-slate-800">
+              &larr; Назад
+            </button>
+          </div>
+
+          <!-- Документи/Ценовник и по најава -->
+          <div class="border-t border-slate-100 pt-4 flex flex-wrap gap-3">
+            <button id="btnDocs"
+                    class="px-4 py-2.5 rounded-lg bg-slate-100 text-sm font-medium text-slate-800 hover:bg-slate-200">
+              Документи и регулативи
+            </button>
+            <button id="showPriceBtn"
+                    class="px-4 py-2.5 rounded-lg bg-slate-100 text-sm font-medium text-slate-800 hover:bg-slate-200">
+              Ценовник
+            </button>
+          </div>
+
+          <div id="docsList" class="text-sm text-slate-700"></div>
+
+          <!-- GDPR повторно -->
+          <div class="border-t border-slate-100 pt-4">
+            <p class="text-sm font-semibold text-slate-900">
+              DIAB-REG собира, обработува и чува само податоци кои се однесуваат на правни субјекти:
+            </p>
+            <ul class="list-disc ml-5 mt-2 text-xs text-slate-700 space-y-1">
+              <li>Назив на компанија</li>
+              <li>ЕМБС</li>
+              <li>Назив на производ</li>
+              <li>Категорија</li>
+              <li>Датум</li>
+            </ul>
+            <p class="text-xs text-slate-500 mt-1">Без лични податоци. Нема колачиња за следење.</p>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <!-- ===== MY APPS SECTION ===== -->
+      <section id="myAppsSection" class="hidden space-y-6">
+
+  <button id="backFromMyApps"
+          class="inline-flex items-center text-sm font-medium text-sky-700 hover:text-sky-900 transition duration-200">
+    &larr; Назад
+  </button>
+
+  <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">
+    Мои апликации
+  </h2>
+
+  <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+
+    <div class="bg-gradient-to-r from-sky-700 to-blue-600 text-white font-semibold p-4">
+      Листа на вашите поднесени апликации
     </div>
 
-    <!-- My Applications Section -->
-    <div id="myAppsSection" class="hidden">
-      <button id="backFromMyApps" class="back-btn">&larr; Назад</button>
-      <h2>Мои апликации</h2>
-      <table>
-        <thead><tr>
-          <th>ID</th><th>Датум</th><th>Продукт</th><th>Статус</th>
-          <th>Conf. No.</th><th>Преглед</th>
-        </tr></thead>
-        <tbody></tbody>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+
+        <thead class="bg-slate-900 text-white">
+          <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+
+            <th class="px-4 py-3 text-left">ID</th>
+            <th class="px-4 py-3 text-left">Дата</th>
+            <th class="px-4 py-3 text-left">Продукт</th>
+            <th class="px-4 py-3 text-left">Статус</th>
+            <th class="px-4 py-3 text-left">Cert. No.</th>
+            <th class="px-4 py-3 text-left">Преглед</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100">
+          <!-- JS го полни -->
+        </tbody>
+
       </table>
     </div>
 
-    </div>
-	 <div id="gallery"></div>
-
-  <!-- Поддржано од -->
-  
-	
-    <footer style="padding: 2rem; text-align: center; color: var(--muted); background: var(--light); border-top: 1px solid rgba(0,0,0,0.05);">
-     
-	  © 2025 DIAB-REG Систем за стандардизирани потврди. Сите права се задржани.
-    </footer>
   </div>
 
-  <script>
-         const images = [
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQhyHn4MpY9UEEmWgfjxVh3JAqXveq9_2wZw&s',
-      'https://upload.wikimedia.org/wikipedia/en/b/b1/Novo_Nordisk_-_Logo.svg',
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/F._Hoffmann-La_Roche_2021_logo.svg/1200px-F._Hoffmann-La_Roche_2021_logo.svg.png',
-      'https://farmaon.al/wp-content/uploads/2023/04/e22bd229-helathyl08-favio-forte.jpg'
-    ];
-	  document.addEventListener('DOMContentLoaded', () => {
-    // attach language switcher
+</section>
+
+
+      <!-- ===== ГАЛЕРИЈА ПАРТНЕРИ ===== -->
+      <section>
+        <div id="gallery"
+             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+          <!-- пополнува JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="border-t border-slate-200 bg-white/90">
+    <div class="max-w-6xl mx-auto px-4 py-6 text-center text-xs md:text-sm text-slate-500">
+      © 2025 DIAB-REG Систем за стандардизирани потврди. Сите права се задржани.
+      <button id="btnMyApps"
+              class="hidden ml-3 px-3 py-1.5 text-xs rounded-full bg-sky-600 text-white hover:bg-sky-700">
+        Мои апликации
+      </button>
+    </div>
+  </footer>
+</div>
+
+<!-- ================= JS (од твојот оригинален фајл) ================= -->
+<script>
+  const images = [
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQhyHn4MpY9UEEmWgfjxVh3JAqXveq9_2wZw&s',
+    'https://upload.wikimedia.org/wikipedia/en/b/b1/Novo_Nordisk_-_Logo.svg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/F._Hoffmann-La_Roche_2021_logo.svg/1200px-F._Hoffmann-La_Roche_2021_logo.svg.png',
+    'https://farmaon.al/wp-content/uploads/2023/04/e22bd229-helathyl08-favio-forte.jpg'
+  ];
+
+  document.addEventListener('DOMContentLoaded', () => {
     const langSelect = document.getElementById('langSelect');
     langSelect.addEventListener('change', e => {
       window.location.href = e.target.value;
     });
   });
 
-    const gallery = document.getElementById('gallery');
-const translations = {
-      mk: {
-        "lang.select.label": "Глуha:",
-        "lang.mk": "Македонски",
-        "lang.en": "English",
-        "lang.sq": "Shqip",
-        "header.title": "Систем за сертификација и регулација",
-        "header.subtitle": "на производи наменети за сите лица со дијабетес",
-        "btn.myApps": "Мои апликации",
-        "card.certified.title": "Сертифицирани",
-        "card.certified.subtitle": "од DIAB-REG",
-        "card.login.title": "Најави се",
-        "card.login.subtitle": "Имате профил?",
-        "card.register.title": "Регистрирај се",
-        "card.register.subtitle": "Нов корисник?",
-        "card.docs.title": "Документи",
-        "card.docs.subtitle": "и регулативи",
-        "card.price.title": "Ценовник",
-        "gdpr.title": "DIAB-REG собира, обработува и чува само податоци кои се однесуваат на правни субјекти:",
-        "gdpr.item.company": "Назив на компанија",
-        "gdpr.item.embs": "ЕМБС",
-        "gdpr.item.product": "Назив на производ",
-        "gdpr.item.category": "Категорија",
-        "gdpr.item.date": "Датум",
-        "gdpr.footer": "Без лични податоци. Нема колачиња за следење.",
-        "section.certified.title": "Сертифицирани барања",
-        "filter.id": "ID:",
-        "filter.date": "Created At:",
-        "filter.company": "Company:",
-        "filter.product": "Product:",
-        "filter.status": "Status:",
-        "filter.id.placeholder": "Filter по ID",
-        "filter.date.placeholder": "Filter по Датум",
-        "filter.company.placeholder": "Filter по Компанија",
-        "filter.product.placeholder": "Filter по Продукт",
-        "cert.table.id": "ID",
-        "cert.table.createdAt": "Created At",
-        "cert.table.company": "Company",
-        "cert.table.product": "Product",
-        "cert.table.contact": "Contact",
-        "cert.table.email": "Email",
-        "cert.table.status": "Status",
-        "cert.table.certNo": "Cert. No.",
-        "login.title": "Најава",
-        "login.label.id": "Матичен број (ЕМБС)",
-        "login.placeholder.id": "Внесете го матичен број",
-        "login.label.password": "Лозинка",
-        "login.placeholder.password": "Внесете ја лозинката",
-        "btn.submit.login": "Најави се",
-        "register.title": "Регистрација",
-        "register.label.id": "Матичен број (ЕМБС)",
-        "register.label.company": "Име на компанија",
-        "register.label.email": "Е-пошта",
-        "register.label.password": "Лозинка",
-        "btn.submit.register": "Регистрирај се",
-        "btn.back": "Назад",
-        "btn.logout": "Одјави се",
-        "afterlogin.welcome": "Добредојдовте!",
-        "afterlogin.info": "Можете да поднесувате апликации и да ги проверувате сертификатите.",
-        "apply.title": "Поднеси нова апликација",
-        "apply.label.contact": "Контакт лице",
-        "apply.label.email": "Контакт е-пошта",
-        "apply.label.category": "Категорија",
-        "apply.select.category.placeholder": "– Избери –",
-        "apply.label.product": "Име на продукт",
-        "apply.label.docs": "Прикачете документи",
-        "btn.submit.apply": "Поднеси апликација",
-        "status.title": "Проверка статус",
-        "status.input.placeholder": "Внесете ID на апликација",
-        "btn.check.status": "Провери",
-        "statusResult.notFound": "Не пронајдено.",
-        "myapps.title": "Мои апликации",
-        "myapps.table.id": "ID",
-        "myapps.table.date": "Датум",
-        "myapps.table.product": "Продукт",
-        "myapps.table.status": "Статус",
-        "myapps.table.certNo": "Cert No.",
-        "myapps.table.view": "Преглед",
-        "footer.text": "© 2025 DIAB-REG Систем за сертификација. Сите права се задржани."
-      },
-      en: {
-        "lang.select.label": "Language:",
-        "lang.mk": "Macedonian",
-        "lang.en": "English",
-        "lang.sq": "Albanian",
-        "header.title": "Certification & Regulation System",
-        "header.subtitle": "for products intended for all people with diabetes",
-        "btn.myApps": "My Applications",
-        "card.certified.title": "Certified",
-        "card.certified.subtitle": "by DIAB-REG",
-        "card.login.title": "Log In",
-        "card.login.subtitle": "Have an account?",
-        "card.register.title": "Register",
-        "card.register.subtitle": "New user?",
-        "card.docs.title": "Documents",
-        "card.docs.subtitle": "and regulations",
-        "card.price.title": "Pricing",
-        "gdpr.title": "DIAB-REG collects, processes, and stores only data related to legal entities:",
-        "gdpr.item.company": "Company Name",
-        "gdpr.item.embs": "EMBS",
-        "gdpr.item.product": "Product Name",
-        "gdpr.item.category": "Category",
-        "gdpr.item.date": "Date",
-        "gdpr.footer": "No personal data. No tracking cookies.",
-        "section.certified.title": "Certified Applications",
-        "filter.id": "ID:",
-        "filter.date": "Created At:",
-        "filter.company": "Company:",
-        "filter.product": "Product:",
-        "filter.status": "Status:",
-        "filter.id.placeholder": "Filter by ID",
-        "filter.date.placeholder": "Filter by Date",
-        "filter.company.placeholder": "Filter by Company",
-        "filter.product.placeholder": "Filter by Product",
-        "cert.table.id": "ID",
-        "cert.table.createdAt": "Created At",
-        "cert.table.company": "Company",
-        "cert.table.product": "Product",
-        "cert.table.contact": "Contact",
-        "cert.table.email": "Email",
-        "cert.table.status": "Status",
-        "cert.table.certNo": "Cert. No.",
-        "login.title": "Login",
-        "login.label.id": "National ID (EMBS)",
-        "login.placeholder.id": "Enter your ID",
-        "login.label.password": "Password",
-        "login.placeholder.password": "Enter your password",
-        "btn.submit.login": "Log In",
-        "register.title": "Registration",
-        "register.label.id": "National ID (EMBS)",
-        "register.label.company": "Company Name",
-        "register.label.email": "Email",
-        "register.label.password": "Password",
-        "btn.submit.register": "Register",
-        "btn.back": "Back",
-        "btn.logout": "Log Out",
-        "afterlogin.welcome": "Welcome!",
-        "afterlogin.info": "You can submit applications and check certificates.",
-        "apply.title": "Submit New Application",
-        "apply.label.contact": "Contact Person",
-        "apply.label.email": "Contact Email",
-        "apply.label.category": "Category",
-        "apply.select.category.placeholder": "– Select –",
-        "apply.label.product": "Product Name",
-        "apply.label.docs": "Upload Documents",
-        "btn.submit.apply": "Submit Application",
-        "status.title": "Check Status",
-        "status.input.placeholder": "Enter application ID",
-        "btn.check.status": "Check",
-        "statusResult.notFound": "Not found.",
-        "myapps.title": "My Applications",
-        "myapps.table.id": "ID",
-        "myapps.table.date": "Date",
-        "myapps.table.product": "Product",
-        "myapps.table.status": "Status",
-        "myapps.table.certNo": "Cert No.",
-        "myapps.table.view": "View",
-        "footer.text": "© 2025 DIAB-REG Certification System. All rights reserved."
-      },
-      sq: {
-        "lang.select.label": "Gjuha:",
-        "lang.mk": "Maqedonisht",
-        "lang.en": "Anglisht",
-        "lang.sq": "Shqip",
-        "header.title": "Sistemi i Certifikimit dhe Rregullimit",
-        "header.subtitle": "për produktet e destinuara për të gjithë personat me diabet",
-        "btn.myApps": "Aplikimet e Mia",
-        "card.certified.title": "Certifikuar",
-        "card.certified.subtitle": "nga DIAB-REG",
-        "card.login.title": "Hyr",
-        "card.login.subtitle": "Keni llogari?",
-        "card.register.title": "Regjistrohu",
-        "card.register.subtitle": "Përdorues i ri?",
-        "card.docs.title": "Dokumente",
-        "card.docs.subtitle": "dhe rregullore",
-        "card.price.title": "Çmimet",
-        "gdpr.title": "DIAB-REG mbledh, përpunon dhe ruan vetëm të dhëna që lidhen me subjekte juridike:",
-        "gdpr.item.company": "Emri i kompanisë",
-        "gdpr.item.embs": "EMBS",
-        "gdpr.item.product": "Emri i produktit",
-        "gdpr.item.category": "Kategoria",
-        "gdpr.item.date": "Data",
-        "gdpr.footer": "Pa të dhëna personale. Pa cookies për gjurmim.",
-        "section.certified.title": "Aplikime Certifikuara",
-        "filter.id": "ID:",
-        "filter.date": "Krijuar më:",
-        "filter.company": "Kompania:",
-        "filter.product": "Produkti:",
-        "filter.status": "Statusi:",
-        "filter.id.placeholder": "Filtro sipas ID",
-        "filter.date.placeholder": "Filtro sipas Datës",
-        "filter.company.placeholder": "Filtro sipas Kompanisë",
-        "filter.product.placeholder": "Filtro sipas Produktit",
-        "cert.table.id": "ID",
-        "cert.table.createdAt": "Krijuar më",
-        "cert.table.company": "Kompania",
-        "cert.table.product": "Produkti",
-        "cert.table.contact": "Kontakti",
-        "cert.table.email": "Email",
-        "cert.table.status": "Statusi",
-        "cert.table.certNo": "Nr. Cert.",
-        "login.title": "Hyrje",
-        "login.label.id": "Numri i Identifikimit Kombëtar (EMBS)",
-        "login.placeholder.id": "Shkruani ID tuaj",
-        "login.label.password": "Fjalëkalimi",
-        "login.placeholder.password": "Shkruani fjalëkalimin tuaj",
-        "btn.submit.login": "Hyr",
-        "register.title": "Regjistrimi",
-        "register.label.id": "Numri i Identifikimit Kombëtar (EMBS)",
-        "register.label.company": "Emri i kompanisë",
-        "register.label.email": "Email",
-        "register.label.password": "Fjalëkalimi",
-        "btn.submit.register": "Regjistrohu",
-        "btn.back": "Kthehu",
-        "btn.logout": "Dil",
-        "afterlogin.welcome": "Mirë se vini!",
-        "afterlogin.info": "Mund të dërgoni aplikime dhe të kontrolloni certifikatat.",
-        "apply.title": "Dërgo Aplikim të Ri",
-        "apply.label.contact": "Persona Kontakti",
-        "apply.label.email": "Email Kontakti",
-        "apply.label.category": "Kategoria",
-        "apply.select.category.placeholder": "– Zgjidh –",
-        "apply.label.product": "Emri i Produktit",
-        "apply.label.docs": "Ngarko Dokumentet",
-        "btn.submit.apply": "Dërgo Aplikimin",
-        "status.title": "Kontrollo Statusin",
-        "status.input.placeholder": "Shkruani ID të aplikimit",
-        "btn.check.status": "Kontrollo",
-        "statusResult.notFound": "Nuk u gjet.",
-        "myapps.title": "Aplikimet e Mia",
-        "myapps.table.id": "ID",
-        "myapps.table.date": "Data",
-        "myapps.table.product": "Produkti",
-        "myapps.table.status": "Statusi",
-        "myapps.table.certNo": "Nr. Cert.",
-        "myapps.table.view": "Shiko",
-        "footer.text": "© 2025 DIAB-REG Sistemi i Certifikimit. Të gjitha të drejtat e rezervuara."
-      }
-    };
-	
-	
-    // Прикажи ги сликите во рамки
-    function renderGallery() {
-      gallery.innerHTML = '';
-      images.forEach(src => {
-        const frame = document.createElement('div');
-        frame.className = 'frame';
-        const img = document.createElement('img');
-        img.src = src;
-        frame.appendChild(img);
-        gallery.appendChild(frame);
-      });
-    }
+  const gallery = document.getElementById('gallery');
 
-    // Fisher–Yates shuffle
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
+  // Прикажи ги сликите
+  function renderGallery() {
+    gallery.innerHTML = '';
+    images.forEach(src => {
+      const frame = document.createElement('div');
+      frame.className = 'bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden';
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'w-full h-24 sm:h-28 md:h-32 object-contain bg-slate-50';
+      frame.appendChild(img);
+      gallery.appendChild(frame);
+    });
+  }
 
-    // Прво рендерирање
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  renderGallery();
+  setInterval(() => {
+    shuffleArray(images);
     renderGallery();
+  }, 15000);
 
-    // Меша и рендерира секои 15 секунди
-    setInterval(() => {
-      shuffleArray(images);
-      renderGallery();
-    }, 15000);
-  
-    let token = null;
-    const initial    = document.getElementById('initialSection');
-    const certified  = document.getElementById('certifiedSection');
-    const loginSec   = document.getElementById('loginSection');
-    const regSec     = document.getElementById('registerSection');
-    const after      = document.getElementById('afterLoginSection');
-    const myAppsSec  = document.getElementById('myAppsSection');
-    const docsList   = document.getElementById('docsList');
+  let token = null;
+  const initial    = document.getElementById('initialSection');
+  const certified  = document.getElementById('certifiedSection');
+  const loginSec   = document.getElementById('loginSection');
+  const regSec     = document.getElementById('registerSection');
+  const after      = document.getElementById('afterLoginSection');
+  const myAppsSec  = document.getElementById('myAppsSection');
+  const docsList   = document.getElementById('docsList');
 
-const form         = document.getElementById('applicationForm');
-const submitBtn    = document.getElementById('submitBtn');
-const acceptTerms  = document.getElementById('acceptTerms');
-const requiredEls  = [
-  document.getElementById('contactInput'),
-  document.getElementById('emailInput'),
-  document.getElementById('categorySelect'),
-  document.getElementById('productInput'),
-  document.getElementById('docsInput')
-];
+  const form       = document.getElementById('applicationForm');
+  const submitBtn  = document.getElementById('submitBtn');
+  const acceptTerms= document.getElementById('acceptTerms');
 
-function updateSubmitState() {
-  // 1) Сите задолжителни полиња да имаат вредност
-  const allFilled = requiredEls.every(el => {
-    if (el.type === 'file') {
-      return el.files.length > 0;
+  // едноставно: само условите да се прифатени
+  acceptTerms.addEventListener('change', () => {
+    submitBtn.disabled = !acceptTerms.checked;
+    if (submitBtn.disabled) {
+      submitBtn.classList.remove('bg-sky-600','cursor-pointer');
+      submitBtn.classList.add('bg-slate-400','cursor-not-allowed');
+    } else {
+      submitBtn.classList.remove('bg-slate-400','cursor-not-allowed');
+      submitBtn.classList.add('bg-sky-600','cursor-pointer');
     }
-    return el.value.trim() !== '';
   });
-  // 2) Чекбоксот да е чекнат
-  submitBtn.disabled = !(allFilled && acceptTerms.checked);
-}
 
+  // Навигација
+  document.getElementById('showLoginBtn').onclick       = ()=>{
+    initial.classList.add('hidden');
+    loginSec.classList.remove('hidden');
+  };
+  document.getElementById('backFromLogin').onclick      = ()=>{
+    loginSec.classList.add('hidden');
+    initial.classList.remove('hidden');
+  };
+  document.getElementById('showRegisterBtn').onclick    = ()=>{
+    initial.classList.add('hidden');
+    regSec.classList.remove('hidden');
+  };
+  document.getElementById('backFromRegister').onclick   = ()=>{
+    regSec.classList.add('hidden');
+    initial.classList.remove('hidden');
+  };
+  document.getElementById('backFromAfterLogin').onclick = ()=>{
+    token = null;
+    after.classList.add('hidden');
+    initial.classList.remove('hidden');
+  };
+  document.getElementById('backFromStatus').onclick     = ()=>{
+    document.getElementById('statusSection').classList.add('hidden');
+    document.getElementById('applySection').classList.remove('hidden');
+  };
+  document.getElementById('backFromMyApps').onclick     = ()=>{
+    myAppsSec.classList.add('hidden');
+    after.classList.remove('hidden');
+  };
+  document.getElementById('backFromCertified').onclick  = ()=>{
+    certified.classList.add('hidden');
+    initial.classList.remove('hidden');
+  };
 
+  // Сертифицирани од DIAB-REG
+  document.getElementById('btnCertified').addEventListener('click', async ()=>{
+    initial.classList.add('hidden');
+    certified.classList.remove('hidden');
 
-// Овозможи/оневозможи копчето според чекирањето
-acceptTerms.addEventListener('change', () => {
-  submitBtn.disabled = !acceptTerms.checked;
-});
+    const res = await fetch('/api/admin/applications', { credentials: 'include' });
+    if (!res.ok) return alert('Грешка при вчитување');
 
-// Измени го submit handler-от да не пренасочува автоматски
-form.addEventListener('submit', async e => {
-  e.preventDefault();
-  if (!token) return alert('Мора да се најавиш');
-  if (!acceptTerms.checked) return alert('Мора да ги прифатите условите');
-
-  // 1) Испрати апликација на backend
-  const fd = new FormData(form);
-  const applyRes  = await fetch('/api/apply', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token },
-    body: fd
+    const apps = (await res.json()).filter(x=>x.status==='Completed');
+    const tb = certified.querySelector('tbody');
+    tb.innerHTML = apps.map(a=>{
+      const d = new Date(a.createdAt).toLocaleString('mk-MK');
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-3 py-2">${a._id}</td>
+        <td class="px-3 py-2">${d}</td>
+        <td class="px-3 py-2">${a.company.name}</td>
+        <td class="px-3 py-2">${a.product}</td>
+        <td class="px-3 py-2">${a.contact}</td>
+        <td class="px-3 py-2">${a.email}</td>
+        <td class="px-3 py-2">${a.status}</td>
+        <td class="px-3 py-2">${a.cert_number||''}</td>
+      </tr>`;
+    }).join('');
   });
-  const applyJson = await applyRes.json();
-  if (!applyJson.id) {
-    return alert('Грешка при поднесување: ' + (applyJson.error||''));
+
+  function applyCertFilters(){
+    const f={
+      id:      document.getElementById('filterIdCert').value.toLowerCase(),
+      date:    document.getElementById('filterDateCert').value.toLowerCase(),
+      company: document.getElementById('filterCompanyCert').value.toLowerCase(),
+      product: document.getElementById('filterProductCert').value.toLowerCase()
+    };
+    certified.querySelectorAll('tbody tr').forEach(r=>{
+      const c = Array.from(r.cells).map(td=>td.textContent.toLowerCase());
+      const ok =
+        (!f.id      || c[0].includes(f.id)) &&
+        (!f.date    || c[1].includes(f.date)) &&
+        (!f.company || c[2].includes(f.company)) &&
+        (!f.product || c[3].includes(f.product));
+      r.style.display = ok ? '' : 'none';
+    });
   }
+  ['filterIdCert','filterDateCert','filterCompanyCert','filterProductCert']
+    .forEach(id=>document.getElementById(id).addEventListener('input',applyCertFilters));
 
-  // 2) Отстрани пренасочувањето кон плаќање
-  // const link = PAYMENT_LINKS[fd.get('category')];
-  // window.location.href = link;
+  // Документи и регулативи
+  document.querySelectorAll('#btnDocs').forEach(el=>{
+    el.addEventListener('click', async () => {
+      try {
+        const res  = await fetch('/api/documents');
+        if (!res.ok) throw new Error();
+        const json = await res.json();
+        const docsHtml = json.files
+          .map(f => `<li><a href="/documents/${encodeURIComponent(f)}" target="_blank">${f}</a></li>`)
+          .join('');
+        const popup = window.open('', 'docsPopup', 'width=600,height=400');
+        popup.document.write(`
+          <!DOCTYPE html>
+          <html lang="mk">
+          <head>
+            <meta charset="UTF-8"/>
+            <title>Документи и регулативи</title>
+            <style>
+              body { font-family: system-ui, sans-serif; padding:20px; }
+              h3 { color: #0369a1; }
+              ul { list-style: none; padding-left: 0; }
+              li { margin: 8px 0; }
+              a { color: #0369a1; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h3>Документи и регулативи</h3>
+            <ul>${docsHtml}</ul>
+          </body>
+          </html>
+        `);
+      } catch (e) {
+        alert('Грешка при вчитување документи');
+      }
+    });
+  });
 
-  // 3) Информирај го корисникот
-  alert('Апликацијата е поднесена! Вашето ID е ' + applyJson.id);
-});
-
-
-
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  if (!token) return alert('Мора да се најавиш');
-
-  
-
-  // Зачувај ги формата во sessionStorage, за да може подоцна да ја прочиташ
-  // (без документи, тие нема да се зачуваат – затоа подобро е да направиш
-  // server-side apply-and-pay рутa, како што ти предложив претходно)
-  sessionStorage.setItem('appData', JSON.stringify({
-    contact: formData.get('contact'),
-    email:   formData.get('email'),
-    product: formData.get('product'),
-    category
-  }));
-
-  // Пренасочи корисникот на Stripe Hosted Payment Link
-  window.location.href = link;
-});
-
-
-
-    // Навигација
-    document.getElementById('showLoginBtn').onclick       = ()=>{
-      initial.classList.add('hidden');
-      loginSec.classList.remove('hidden');
-    };
-    document.getElementById('backFromLogin').onclick      = ()=>{
-      loginSec.classList.add('hidden');
-      initial.classList.remove('hidden');
-    };
-    document.getElementById('showRegisterBtn').onclick    = ()=>{
-      initial.classList.add('hidden');
-      regSec.classList.remove('hidden');
-    };
-    document.getElementById('backFromRegister').onclick   = ()=>{
-      regSec.classList.add('hidden');
-      initial.classList.remove('hidden');
-    };
-    document.getElementById('backFromAfterLogin').onclick = ()=>{
-      token = null;
-      after.classList.add('hidden');
-      initial.classList.remove('hidden');
-    };
-    document.getElementById('backFromStatus').onclick     = ()=>{
-      document.getElementById('statusSection').classList.add('hidden');
-      after.classList.remove('hidden');
-    };
-    document.getElementById('backFromMyApps').onclick     = ()=>{
-      myAppsSec.classList.add('hidden');
-      after.classList.remove('hidden');
-    };
-    document.getElementById('backFromCertified').onclick  = ()=>{
-      certified.classList.add('hidden');
-      initial.classList.remove('hidden');
-    };
-	
-	
-
-    // Сертифицирани од DIAB-REG
-    // Сертифицирани од DIAB-REG
-document.getElementById('btnCertified').addEventListener('click', async ()=>{
-  initial.classList.add('hidden');
-  certified.classList.remove('hidden');
-
-  // Ова е ја изменивме:
-  const res = await fetch('/api/admin/applications', { credentials: 'include' });
-
-  if (!res.ok) return alert('Грешка при вчитување');
-
-  const apps = (await res.json()).filter(x=>x.status==='Completed');
-  const tb = certified.querySelector('tbody');
-  tb.innerHTML = apps.map(a=>{
-    const d = new Date(a.createdAt).toLocaleString('mk-MK');
-    return `<tr>
-      <td>${a._id}</td><td>${d}</td><td>${a.company.name}</td>
-      <td>${a.product}</td><td>${a.contact}</td><td>${a.email}</td>
-      <td>${a.status}</td><td>${a.cert_number||''}</td>
-    </tr>`;
-  }).join('');
-});
-
-    function applyCertFilters(){
-      const f={
-        id:      document.getElementById('filterIdCert').value.toLowerCase(),
-        date:    document.getElementById('filterDateCert').value.toLowerCase(),
-        company: document.getElementById('filterCompanyCert').value.toLowerCase(),
-        product: document.getElementById('filterProductCert').value.toLowerCase()
-      };
-      certified.querySelectorAll('tbody tr').forEach(r=>{
-        const c = Array.from(r.cells).map(td=>td.textContent.toLowerCase());
-        const ok =
-          (!f.id      || c[0].includes(f.id))&&
-          (!f.date    || c[1].includes(f.date))&&
-          (!f.company || c[2].includes(f.company))&&
-          (!f.product || c[3].includes(f.product));
-        r.style.display = ok?'':'none';
-      });
-    }
-    ['filterIdCert','filterDateCert','filterCompanyCert','filterProductCert']
-      .forEach(id=>document.getElementById(id).addEventListener('input',applyCertFilters));
-
-    // Документи и регулативи
-    document.getElementById('btnDocs').addEventListener('click', async () => {
-  try {
-    const res  = await fetch('/api/documents');
-    if (!res.ok) throw new Error();
-    const json = await res.json();
-    // Генерирање на HTML-то за popup
-    const docsHtml = json.files
-      .map(f => `<li><a href="/documents/${encodeURIComponent(f)}" target="_blank">${f}</a></li>`)
-      .join('');
-    // Отворање нов popup прозорец
-    const popup = window.open('', 'docsPopup', 'width=600,height=400');
-    popup.document.write(`
-      <!DOCTYPE html>
-      <html lang="mk">
-      <head>
-        <meta charset="UTF-8"/>
-        <title>Документи и регулативи</title>
-        <style>
-          body { font-family: 'Segoe UI', sans-serif; padding:20px; }
-          h3 { color: var(--primary, #0078d4); }
-          ul { list-style: none; padding-left: 0; }
-          li { margin: 8px 0; }
-          a { color: var(--primary, #0078d4); text-decoration: none; }
-          a:hover { text-decoration: underline; }
-        </style>
-      </head>
-      <body>
-        <h3>Документи и регулативи</h3>
-        <ul>${docsHtml}</ul>
-      </body>
-      </html>
-    `);
-  } catch (e) {
-    alert('Грешка при вчитување документи');
-  }
-});
-
-    // Ценовник
-    document.getElementById('showPriceBtn').addEventListener('click', ()=>{
+  // Ценовник
+  document.querySelectorAll('#showPriceBtn').forEach(el=>{
+    el.addEventListener('click', ()=>{
       const priceTable = `
         <h3>Ценовник на сертификати (МКД)</h3>
-        <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;margin:10px auto;">
-          <thead><tr><th>Категорија</th><th>Примери</th><th>Цена(МКД)</th></tr></thead>
+        <table border="1" cellpadding="5" cellspacing="0" style="border-collapse:collapse;margin:10px auto;font-family:sans-serif;font-size:13px;">
+          <thead><tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+<th>Категорија</th><th>Примери</th><th>Цена(МКД)</th></tr></thead>
           <tbody>
-            <tr><td>Додатоци и потрошен материјал</td><td>Лепенки, налепници, носачи</td><td>2500</td></tr>
-            <tr><td>Потрошен материјал за мерење/инјектирање</td><td>Тест ленти, игли, катетри</td><td>4000</td></tr>
-            <tr><td>Уреди за мерење</td><td>Глукометри, CGM, сензори</td><td>7500</td></tr>
-            <tr><td>Уреди за апликација на инсулин</td><td>Инсулински пенкала, Jet injectors</td><td>10000</td></tr>
-            <tr><td>Автоматизирани системи</td><td>Инсулински пумпи, хибридни системи</td><td>15000</td></tr>
+            <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+<td>Додатоци и потрошен материјал</td><td>Лепенки, налепници, носачи</td><td>2500</td></tr>
+            <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+<td>Потрошен материјал за мерење/инјектирање</td><td>Тест ленти, игли, катетри</td><td>4000</td></tr>
+            <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+<td>Уреди за мерење</td><td>Глукометри, CGM, сензори</td><td>7500</td></tr>
+            <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+<td>Уреди за апликација на инсулин</td><td>Инсулински пенкала, Jet injectors</td><td>10000</td></tr>
+            <tr class="transition-all duration-200 hover:bg-slate-50 hover:scale-[1.01]">
+<td>Автоматизирани системи</td><td>Инсулински пумпи, хибридни системи</td><td>15000</td></tr>
           </tbody>
         </table>`;
       const w = window.open('','price','width=600,height=400');
       w.document.write(`<html><body>${priceTable}</body></html>`);
     });
-
-    // Регистрација
-    document.getElementById('registerForm').addEventListener('submit', async e=>{
-      e.preventDefault();
-      const data = Object.fromEntries(new FormData(e.target).entries());
-      const res  = await fetch('/api/auth/register',{method:'POST',
-        headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-      const json = await res.json();
-      if(json.success){
-        alert('Регистрација успешна!');
-        regSec.classList.add('hidden');
-        loginSec.classList.remove('hidden');
-      } else alert('Грешка: '+(json.error||''));
-    });
-
-    // Логин
-    document.getElementById('loginForm').addEventListener('submit', async e=>{
-      e.preventDefault();
-      const body = {
-        matichen_broj: document.getElementById('loginMat').value,
-        password:      document.getElementById('loginPass').value
-      };
-      const res = await fetch('/api/auth/login',{method:'POST',
-        headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      const json = await res.json();
-      if(json.token){
-        token = json.token;
-        alert('Најавa успешна!');
-        loginSec.classList.add('hidden');
-        after.classList.remove('hidden');
-        document.getElementById('btnMyApps').classList.remove('hidden');
-      } else alert('Login failed: '+(json.error||''));
-    });
-
-    // Поднеси апликација
-    
-
-    // Проверка статус
-    document.getElementById('checkBtn').addEventListener('click', async () => {
-  const id  = document.getElementById('statusId').value;
-  const res = await fetch('/api/status/'+encodeURIComponent(id), {
-    headers: { 'Authorization': 'Bearer ' + token }
   });
-  const json= await res.json();
-  const r   = document.getElementById('statusResult');
 
-  // Пополнувај резултат
-  if (!json.found) {
-    r.innerText = 'Не пронајдено.';
-  } else {
-    const { status, company, cert_number } = json.application;
-    r.innerHTML = 
-      `<strong>ID:</strong> ${id}<br>
-       <strong>Статус:</strong> ${status}<br>
-       <strong>Company:</strong> ${company}` +
-      (status === 'Completed' && cert_number
-        ? `<br><br>
-           <a href="/confirm/${encodeURIComponent(cert_number)}" target="_blank">
-             Преглед на сертификат ${cert_number}
-           </a>`
-        : '');
-  }
-
-  // Скриј ја апликациската форма и прикажи го статусот
-  document.getElementById('applySection').classList.add('hidden');
-  document.getElementById('statusSection').classList.remove('hidden');
-});
-document.getElementById('backFromStatus').addEventListener('click', () => {
-  document.getElementById('statusSection').classList.add('hidden');
-  document.getElementById('applySection').classList.remove('hidden');
-});
-
-
-    // Мои апликации
-    document.getElementById('btnMyApps').addEventListener('click', async ()=>{
-      if(!token) return alert('Мора да се најавиш');
-      after.classList.add('hidden');
-      myAppsSec.classList.remove('hidden');
-      const res = await fetch('/api/my/applications',{headers:{'Authorization':'Bearer '+token}});
-      if(!res.ok) return alert('Грешка при вчитување апликации');
-      const apps = await res.json();
-      const tb = myAppsSec.querySelector('tbody');
-      tb.innerHTML = apps.map(app=>{
-        const d = new Date(app.createdAt).toLocaleString('mk-MK');
-        const cert = app.cert_number ? `<a href="/confirm/${encodeURIComponent(app.cert_number)}">${app.cert_number}</a>` : '-';
-        const view = app.cert_number ? `<a href="/confirm/${encodeURIComponent(app.cert_number)}">Преглед</a>` : '-';
-        return `<tr><td>${app._id}</td><td>${d}</td><td>${app.product}</td><td>${app.status}</td><td>${cert}</td><td>${view}</td></tr>`;
-      }).join('');
-    });
-	
-	function updateUIForAuth() {
-  if (token) {
-    document.getElementById('btnMyApps').classList.remove('hidden');
-  } else {
-    document.getElementById('btnMyApps').classList.add('hidden');
-  }
-}
-token = json.token;
-updateUIForAuth();
-// ако претходно си зачувал token во localStorage:
-token = localStorage.getItem('jwtToken');
-updateUIForAuth();
-
-document.addEventListener('DOMContentLoaded', () => {
-    const acceptTerms = document.getElementById('acceptTerms');
-    const submitBtn   = document.getElementById('submitBtn');
-
-    // Почетно е оневозможено
-    submitBtn.disabled = true;
-
-    // Кога чекбоксот се менува, овозможи/оневозможи го копчето
-    acceptTerms.addEventListener('change', () => {
-      submitBtn.disabled = !acceptTerms.checked;
-    });
-  });
-document.addEventListener('DOMContentLoaded', () => {
-  const termsLink = document.getElementById('termsLink');
-  termsLink.addEventListener('click', e => {
+  // Регистрација
+  document.getElementById('registerForm').addEventListener('submit', async e=>{
     e.preventDefault();
-    window.open(
-      '/uslov.pdf',
-      'UsloviPDF',
-      'width=800,height=600,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes'
-    );
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    const res  = await fetch('/api/auth/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    const json = await res.json();
+    if(json.success){
+      alert('Регистрација успешна!');
+      regSec.classList.add('hidden');
+      loginSec.classList.remove('hidden');
+    } else alert('Грешка: '+(json.error||''));
   });
-});
 
-document.addEventListener('DOMContentLoaded', () => {
-  const form        = document.getElementById('registerForm');
-  const pwdInput    = document.getElementById('password');
-  const registerBtn = document.getElementById('registerBtn');
+  // Логин
+  document.getElementById('loginForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const body = {
+      matichen_broj: document.getElementById('loginMat').value,
+      password:      document.getElementById('loginPass').value
+    };
+    const res = await fetch('/api/auth/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const json = await res.json();
+    if(json.token){
+      token = json.token;
+      alert('Најавa успешна!');
+      loginSec.classList.add('hidden');
+      after.classList.remove('hidden');
+      document.getElementById('btnMyApps').classList.remove('hidden');
+    } else alert('Login failed: '+(json.error||''));
+  });
 
+  // Поднеси апликација
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (!token) return alert('Мора да се најавиш');
+    if (!acceptTerms.checked) return alert('Мора да ги прифатите условите');
 
-    // побарај од корисникот уште еднаш лозинка
-    const confirmation = prompt('Ве молам потврдете ја лозинката што ја внeвте:');
-    if (confirmation === null) {
-      // корисникот кликнал "Cancel"
-      return;
+    const fd = new FormData(form);
+    const applyRes  = await fetch('/api/apply', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: fd
+    });
+    const applyJson = await applyRes.json();
+    if (!applyJson.id) {
+      return alert('Грешка при поднесување: ' + (applyJson.error||''));
+    }
+    alert('Апликацијата е поднесена! Вашето ID е ' + applyJson.id);
+  });
+
+  // Проверка статус
+  document.getElementById('checkBtn').addEventListener('click', async () => {
+    const id  = document.getElementById('statusId').value;
+    const res = await fetch('/api/status/'+encodeURIComponent(id), {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const json= await res.json();
+    const r   = document.getElementById('statusResult');
+
+    if (!json.found) {
+      r.innerText = 'Не пронајдено.';
+    } else {
+      const { status, company, cert_number } = json.application;
+      r.innerHTML =
+        `<strong class="inline-block min-w-[70px] text-slate-800">ID:</strong> ${id}<br>
+         <strong class="inline-block min-w-[70px] text-slate-800">Статус:</strong> ${status}<br>
+         <strong class="inline-block min-w-[70px] text-slate-800">Company:</strong> ${company}` +
+        (status === 'Completed' && cert_number
+          ? `<br><br>
+             <a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(cert_number)}" target="_blank">
+               Преглед на сертификат ${cert_number}
+             </a>`
+          : '');
     }
 
-    // проверка на совпаѓање
-    if (confirmation !== pwdInput.value) {
-      alert('Грешка: лозинките не се совпаѓаат!');
-      return;
-    }
+    document.getElementById('applySection').classList.add('hidden');
+    document.getElementById('statusSection').classList.remove('hidden');
+  });
 
-    // ако се совпаѓаат, продолжи со регистрирањето
-    const data = {
-      matichen_broj: form.elements.matichen_broj.value.trim(),
-      name:          form.elements.name.value.trim(),
-      email:         form.elements.email.value.trim(),
-      password:      pwdInput.value
-    };
+  // Мои апликации
+  document.getElementById('btnMyApps').addEventListener('click', async ()=>{
+    if(!token) return alert('Мора да се најавиш');
+    after.classList.add('hidden');
+    myAppsSec.classList.remove('hidden');
+    const res = await fetch('/api/my/applications',{headers:{'Authorization':'Bearer '+token}});
+    if(!res.ok) return alert('Грешка при вчитување апликации');
+    const apps = await res.json();
+    const tb = myAppsSec.querySelector('tbody');
+    tb.innerHTML = apps.map(app=>{
+      const d = new Date(app.createdAt).toLocaleString('mk-MK');
+      const cert = app.cert_number ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(app.cert_number)}">${app.cert_number}</a>` : '-';
+      const view = app.cert_number ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(app.cert_number)}">Преглед</a>` : '-';
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-3 py-2">${app._id}</td>
+        <td class="px-3 py-2">${d}</td>
+        <td class="px-3 py-2">${app.product}</td>
+        <td class="px-3 py-2">${app.status}</td>
+        <td class="px-3 py-2">${cert}</td>
+        <td class="px-3 py-2">${view}</td>
+      </tr>`;
+    }).join('');
+  });
 
-    try {
-      const res  = await fetch('/api/auth/register', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(data)
+  // Terms во нов прозорец
+  document.addEventListener('DOMContentLoaded', () => {
+    const termsLink = document.getElementById('termsLink');
+    if (termsLink) {
+      termsLink.addEventListener('click', e => {
+        e.preventDefault();
+        window.open(
+          '/uslov.pdf',
+          'UsloviPDF',
+          'width=800,height=600,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes'
+        );
       });
-      const json = await res.json();
-
-      if (json.success) {
-        alert('Регистрацијата е успешна!');
-        // скриј регистрација и прикажи login
-        document.getElementById('registerSection').classList.add('hidden');
-        document.getElementById('loginSection').classList.remove('hidden');
-      } else {
-        alert('Грешка при регистрација: ' + (json.error||'Непозната грешка'));
-      }
-    } catch (err) {
-      alert('Грешка при регистрација: ' + err.message);
     }
   });
-});
-// јазичен селектор
-document.getElementById('langSelect').addEventListener('change', function() {
-  // ако е Македонски (root), ова исто ќе работи
-  window.location.href = this.value;
-});
+</script>
 
-  </script>
 </body>
 </html>
