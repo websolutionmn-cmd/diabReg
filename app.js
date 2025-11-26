@@ -437,7 +437,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   saveDb(db);
 
   const company = db.companies.find(c => c.id === appDoc.companyId);
-const baseUrl = "https://diabreg.onrender.com";
+  const baseUrl = getBaseUrl(req);
   const confirmUrl = `${baseUrl}/confirm/${encodeURIComponent(appDoc.cert_number)}`;
 
   const pdfPath = path.join(CERT_DIR, `${appDoc.cert_number}.pdf`);
@@ -448,91 +448,23 @@ const baseUrl = "https://diabreg.onrender.com";
   const stream = fs.createWriteStream(pdfPath);
   doc.pipe(stream);
 
-
-  // Modern corporate header
-  const issueDate = appDoc.updatedAt ? new Date(appDoc.updatedAt) : new Date();
+  // Header
+  doc.fontSize(22).text('Стандарнизирана потврда за производ', { align: 'center' });
+  doc.moveDown();
+  doc.fontSize(14).text(`Компанија: ${company ? company.name : 'N/A'}`);
+  doc.text(`ЕМБС: ${company ? company.matichen_broj : 'N/A'}`);
+  doc.text(`Контакт: ${appDoc.contact} (${appDoc.email})`);
+  doc.moveDown();
+  doc.text(`Производ: ${appDoc.product}`);
+  doc.text(`Категорија: ${appDoc.category || ''}`);
+  doc.moveDown();
+  doc.text(`Број на потврда: ${appDoc.cert_number}`);
+  const issueDate = new Date();
   const validTo = new Date(issueDate);
   validTo.setFullYear(validTo.getFullYear() + 1);
-
-  // Top bar
-  const pageWidth = doc.page.width;
-  doc.save();
-  doc.rect(50, 40, pageWidth - 100, 60).fill('#0f172a');
-  doc.fillColor('#ffffff')
-     .fontSize(18)
-     .text('DIAB-REG · СТАНДАРДИЗИРАНА ПОТВРДА ЗА ПРОИЗВОД', 60, 58, {
-       align: 'left',
-       width: pageWidth - 160
-     });
-  doc.restore();
-
-  // Optional logo (ако постои)
-  try {
-    const logoPath = path.join(PUBLIC_DIR, 'logo.jpg');
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, pageWidth - 140, 48, { width: 70 });
-    }
-  } catch (e) {
-    console.error('Logo error:', e);
-  }
-
+  doc.text(`Датум на издавање: ${issueDate.toLocaleString('mk-MK')}`);
+  doc.text(`Важност до: ${validTo.toLocaleDateString('mk-MK')}`);
   doc.moveDown();
-  doc.moveDown();
-
-  // Intro text
-  doc.fillColor('#111827')
-     .fontSize(12)
-     .text(
-       'Оваа потврда е издадена од системот DIAB-REG врз основа на доставената документација, ' +
-       'експертска проценка и воспоставените стандарди за дијабетолошки производи.',
-       {
-         align: 'left',
-         width: pageWidth - 100
-       }
-     )
-     .moveDown(1.5);
-
-  // Light panel for company + product info
-  const panelTop = doc.y;
-  doc.save();
-  doc.roundedRect(50, panelTop, pageWidth - 100, 140, 10)
-     .fill('#f9fafb');
-  doc.restore();
-
-  doc.moveDown();
-  doc.moveDown(0.2);
-  doc.fontSize(13).fillColor('#111827').text('Податоци за компанијата', 65, panelTop + 12);
-  doc.fontSize(11).fillColor('#374151');
-  doc.text(`Компанија: ${company ? company.name : 'N/A'}`, 65, panelTop + 34);
-  doc.text(`ЕМБС: ${company ? company.matichen_broj : 'N/A'}`);
-  doc.text(`Контакт лице: ${appDoc.contact || 'N/A'}`);
-  doc.text(`Е-пошта: ${appDoc.email || (company ? company.email : '') || 'N/A'}`);
-
-  // Product column
-  const col2X = pageWidth / 2 + 10;
-  doc.fontSize(13).fillColor('#111827').text('Податоци за производот', col2X, panelTop + 12);
-  doc.fontSize(11).fillColor('#374151');
-  doc.text(`Производ: ${appDoc.product}`, col2X, panelTop + 34, { width: pageWidth - col2X - 40 });
-  doc.text(`Категорија: ${appDoc.category || 'N/A'}`, col2X);
-  doc.text(`Број на потврда: ${appDoc.cert_number}`, col2X);
-  doc.text(`Датум на издавање: ${issueDate.toLocaleDateString('mk-MK')}`, col2X);
-  doc.text(`Важи до: ${validTo.toLocaleDateString('mk-MK')}`, col2X);
-
-  doc.moveDown();
-  doc.moveDown(4);
-
-  // Footer note
-  doc.fontSize(9)
-     .fillColor('#6b7280')
-     .text(
-       'Оваа потврда не претставува замена за регулаторно одобрување, туку стандардизирана евиденција за ' +
-       'проценка на производот од страна на DIAB-REG и вклучените стручни лица.',
-       {
-         align: 'left',
-         width: pageWidth - 100
-       }
-     )
-     .moveDown(1.5);
 
   // QR со линк до confirm
   try {
@@ -682,26 +614,6 @@ app.get('/al', (req, res) => {
 });
 app.get('/agent', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'agent.html'));
-});
-// Public: list all certified (Completed) applications
-app.get('/api/public/certified', (req, res) => {
-  const db = loadDb();
-
-  const certified = db.applications
-    .filter(a => a.status === 'Completed')
-    .map(a => {
-      const company = db.companies.find(c => c.id === a.companyId);
-      return {
-        id: a.id,
-        company: company ? company.name : 'N/A',
-        product: a.product,
-        category: a.category || '',
-        cert_number: a.cert_number,
-        updatedAt: a.updatedAt
-      };
-    });
-
-  res.json(certified);
 });
 
 // Start
