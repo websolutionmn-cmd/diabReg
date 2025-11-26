@@ -338,6 +338,83 @@
   -ms-text-align-last: center;   /* за IE/Edge */
   
 }
+/* MOBILE OPTIMIZATION – GLOBAL */
+@media (max-width: 768px) {
+  .wrapper {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  header {
+    padding: 30px 15px;
+  }
+
+  header img {
+    height: 110px;
+  }
+
+  h1 {
+    font-size: 1.8rem !important;
+  }
+
+  .card-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .card {
+    width: 100%;
+    min-height: 130px;
+    padding: 20px;
+  }
+
+  .small-card {
+    width: 100%;
+    min-height: 100px;
+  }
+
+  .form-container {
+    padding: 20px;
+  }
+
+  input, select {
+    font-size: 1rem;
+    padding: 12px;
+  }
+
+  button {
+    padding: 14px;
+    font-size: 1rem;
+  }
+}
+/* MOBILE TABLE FIX */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-radius: 12px;
+  }
+
+  th, td {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+}
+@media (max-width: 768px) {
+  #certifiedSection .filter-options {
+    flex-direction: column;
+  }
+
+  #certifiedSection .filter-options label {
+    width: 100%;
+  }
+
+  #certifiedSection input {
+    width: 100%;
+  }
+}
 
   </style>
 
