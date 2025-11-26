@@ -633,7 +633,12 @@
     initial.classList.add('hidden');
     certified.classList.remove('hidden');
 
-    const res = await fetch('/api/admin/applications', { credentials: 'include' });
+    const res = await fetch('/api/admin/applications', {
+    headers: {
+        "Authorization": "Bearer " + token
+    }
+});
+
     if (!res.ok) return alert('Грешка при вчитување');
 
     const apps = (await res.json()).filter(x=>x.status==='Completed');
