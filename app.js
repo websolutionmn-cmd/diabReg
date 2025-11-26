@@ -465,14 +465,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   doc.text(`Датум на издавање: ${issueDate.toLocaleString('mk-MK')}`);
   doc.text(`Важност до: ${validTo.toLocaleDateString('mk-MK')}`);
   doc.moveDown();
-doc.moveDown();
-doc.fontSize(12).text(
-  "Стандарнизирана потврда за производ е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија.\n" +
-  "Има важност од една година од датумот на издавање.\n" +
-  "За повеќе: +389 78 395 246 или websolution.mn@gmail.com",
-  { align: 'center' }
-);
-doc.moveDown();
+
   // QR со линк до confirm
   try {
     const png = await bwipjs.toBuffer({
@@ -601,36 +594,6 @@ app.post('/api/payment/session', authCompany, express.json(), async (req, res) =
     console.error('Payoneer session error', e.response?.data || e);
     res.status(500).json({ error:'Не може да се отвори плаќање' });
   }
-});
-
-
-// PUBLIC: List all completed (confirmed) applications
-app.get('/api/public/completed', (req, res) => {
-  const db = loadDb();
-
-  // земаме само Completed
-  const apps = db.applications
-    .filter(a => a.status === 'Completed')
-    .sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-  const result = apps.map(a => {
-    const company = db.companies.find(c => c.id === a.companyId);
-    return {
-      cert_number: a.cert_number,
-      product: a.product,
-      category: a.category,
-      company: company ? company.name : 'N/A',
-      validTo: (() => {
-        const issue = a.updatedAt ? new Date(a.updatedAt) : new Date();
-        const valid = new Date(issue);
-        valid.setFullYear(valid.getFullYear() + 1);
-        return valid.toLocaleDateString('mk-MK');
-      })(),
-      pdf: `/certificates/${a.cert_number}.pdf`
-    };
-  });
-
-  res.json({ total: result.length, items: result });
 });
 
 // ===== Health & SPA routes =====
