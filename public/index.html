@@ -338,83 +338,6 @@
   -ms-text-align-last: center;   /* за IE/Edge */
   
 }
-/* MOBILE OPTIMIZATION – GLOBAL */
-@media (max-width: 768px) {
-  .wrapper {
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  header {
-    padding: 30px 15px;
-  }
-
-  header img {
-    height: 110px;
-  }
-
-  h1 {
-    font-size: 1.8rem !important;
-  }
-
-  .card-container {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .card {
-    width: 100%;
-    min-height: 130px;
-    padding: 20px;
-  }
-
-  .small-card {
-    width: 100%;
-    min-height: 100px;
-  }
-
-  .form-container {
-    padding: 20px;
-  }
-
-  input, select {
-    font-size: 1rem;
-    padding: 12px;
-  }
-
-  button {
-    padding: 14px;
-    font-size: 1rem;
-  }
-}
-/* MOBILE TABLE FIX */
-@media (max-width: 768px) {
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-radius: 12px;
-  }
-
-  th, td {
-    padding: 10px 15px;
-    font-size: 0.9rem;
-  }
-}
-@media (max-width: 768px) {
-  #certifiedSection .filter-options {
-    flex-direction: column;
-  }
-
-  #certifiedSection .filter-options label {
-    width: 100%;
-  }
-
-  #certifiedSection input {
-    width: 100%;
-  }
-}
 
   </style>
 
@@ -1067,90 +990,26 @@ form.addEventListener('submit', e => {
 
     // Сертифицирани од DIAB-REG
     // Сертифицирани од DIAB-REG
-document.getElementById('btnCertified').addEventListener('click', async () => {
-  try {
-    initial.classList.add('hidden');
-    certified.classList.remove('hidden');
+document.getElementById('btnCertified').addEventListener('click', async ()=>{
+  initial.classList.add('hidden');
+  certified.classList.remove('hidden');
 
-    const res = await fetch('/api/public/certified');
-    if (!res.ok) throw new Error('Bad response');
+  // Ова е ја изменивме:
+  const res = await fetch('/api/admin/applications', { credentials: 'include' });
 
-    const list = await res.json();
+  if (!res.ok) return alert('Грешка при вчитување');
 
-    const tbody = certified.querySelector('tbody');
-    tbody.innerHTML = list.map(item => {
-      const created = item.updatedAt
-        ? new Date(item.updatedAt).toLocaleString('mk-MK')
-        : '-';
-
-      return `
-        <tr>
-          <td>${item.id}</td>
-          <td>${created}</td>
-          <td>${item.company}</td>
-          <td>${item.product}</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Completed</td>
-          <td>
-            <a href="/confirm/${item.cert_number}" target="_blank">${item.cert_number}</a>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-  } catch (err) {
-    console.error(err);
-    alert('Грешка при вчитување');
-  }
+  const apps = (await res.json()).filter(x=>x.status==='Completed');
+  const tb = certified.querySelector('tbody');
+  tb.innerHTML = apps.map(a=>{
+    const d = new Date(a.createdAt).toLocaleString('mk-MK');
+    return `<tr>
+      <td>${a._id}</td><td>${d}</td><td>${a.company.name}</td>
+      <td>${a.product}</td><td>${a.contact}</td><td>${a.email}</td>
+      <td>${a.status}</td><td>${a.cert_number||''}</td>
+    </tr>`;
+  }).join('');
 });
-function applyCertFilters() {
-  const f = {
-    id:      document.getElementById('filterIdCert').value.toLowerCase(),
-    date:    document.getElementById('filterDateCert').value.toLowerCase(),
-    company: document.getElementById('filterCompanyCert').value.toLowerCase(),
-    product: document.getElementById('filterProductCert').value.toLowerCase()
-  };
-
-  const rows = document.querySelectorAll('#certifiedSection tbody tr');
-
-  rows.forEach(row => {
-    const cells = row.querySelectorAll('td');
-
-    const match =
-      (!f.id      || cells[0].textContent.toLowerCase().includes(f.id)) &&
-      (!f.date    || cells[1].textContent.toLowerCase().includes(f.date)) &&
-      (!f.company || cells[2].textContent.toLowerCase().includes(f.company)) &&
-      (!f.product || cells[3].textContent.toLowerCase().includes(f.product));
-
-    row.style.display = match ? '' : 'none';
-  });
-}
-['filterIdCert', 'filterDateCert', 'filterCompanyCert', 'filterProductCert']
-  .forEach(id => {
-    document.getElementById(id).addEventListener('input', applyCertFilters);
-  });
-const tbody = certified.querySelector('tbody');
-tbody.innerHTML = list.map(item => {
-  const created = item.updatedAt
-    ? new Date(item.updatedAt).toLocaleString('mk-MK')
-    : '-';
-
-  return `
-    <tr>
-      <td>${item.id}</td>
-      <td>${created}</td>
-      <td>${item.company}</td>
-      <td>${item.product}</td>
-      <td>-</td>
-      <td>-</td>
-      <td>Completed</td>
-      <td><a href="/confirm/${item.cert_number}" target="_blank">${item.cert_number}</a></td>
-    </tr>
-  `;
-}).join('');
-
-
 
     function applyCertFilters(){
       const f={
