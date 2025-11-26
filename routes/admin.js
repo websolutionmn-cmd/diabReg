@@ -15,7 +15,9 @@ const transporter = nodemailer.createTransport({
 });
 
 // Листа апликации
-router.get('/applications', /* auth('admin'), */ async (req, res) => {
+const { auth } = require('./auth');   // активирај го овој import
+
+router.get('/applications', auth('admin'), async (req, res) => {
   try {
     const apps = await Application.find()
       .populate('company','name matichen_broj')
@@ -28,7 +30,7 @@ router.get('/applications', /* auth('admin'), */ async (req, res) => {
 });
 
 // Промена статус + (опционално) email
-router.patch('/applications/:id/status', /* auth('admin'), */ async (req, res) => {
+router.patch('/applications/:id/status', auth('admin'), async (req, res) => {
   try {
     const { status: newStatus, notify } = req.body;
     const app = await Application.findById(req.params.id).populate('company');
