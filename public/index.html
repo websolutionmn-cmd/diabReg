@@ -992,27 +992,87 @@ form.addEventListener('submit', e => {
     // Сертифицирани од DIAB-REG
 document.getElementById('btnCertified').addEventListener('click', async () => {
   try {
+    initial.classList.add('hidden');
+    certified.classList.remove('hidden');
+
     const res = await fetch('/api/public/certified');
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error('Bad response');
 
     const list = await res.json();
 
-    const html = list.map(c => `
-      <li>
-        <strong>${c.company}</strong><br>
-        Производ: ${c.product}<br>
-        Потврда: ${c.cert_number}<br>
-        <a href="/api/certificate/pdf/${c.id}" target="_blank">PDF</a> |
-        <a href="/confirm/${c.cert_number}" target="_blank">Види потврда</a>
-      </li>
-    `).join('');
+    const tbody = certified.querySelector('tbody');
+    tbody.innerHTML = list.map(item => {
+      const created = item.updatedAt
+        ? new Date(item.updatedAt).toLocaleString('mk-MK')
+        : '-';
 
-    // покажи popup...
-  }
-  catch (err) {
+      return `
+        <tr>
+          <td>${item.id}</td>
+          <td>${created}</td>
+          <td>${item.company}</td>
+          <td>${item.product}</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Completed</td>
+          <td>
+            <a href="/confirm/${item.cert_number}" target="_blank">${item.cert_number}</a>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
     alert('Грешка при вчитување');
   }
 });
+function applyCertFilters() {
+  const f = {
+    id:      document.getElementById('filterIdCert').value.toLowerCase(),
+    date:    document.getElementById('filterDateCert').value.toLowerCase(),
+    company: document.getElementById('filterCompanyCert').value.toLowerCase(),
+    product: document.getElementById('filterProductCert').value.toLowerCase()
+  };
+
+  const rows = document.querySelectorAll('#certifiedSection tbody tr');
+
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+
+    const match =
+      (!f.id      || cells[0].textContent.toLowerCase().includes(f.id)) &&
+      (!f.date    || cells[1].textContent.toLowerCase().includes(f.date)) &&
+      (!f.company || cells[2].textContent.toLowerCase().includes(f.company)) &&
+      (!f.product || cells[3].textContent.toLowerCase().includes(f.product));
+
+    row.style.display = match ? '' : 'none';
+  });
+}
+['filterIdCert', 'filterDateCert', 'filterCompanyCert', 'filterProductCert']
+  .forEach(id => {
+    document.getElementById(id).addEventListener('input', applyCertFilters);
+  });
+const tbody = certified.querySelector('tbody');
+tbody.innerHTML = list.map(item => {
+  const created = item.updatedAt
+    ? new Date(item.updatedAt).toLocaleString('mk-MK')
+    : '-';
+
+  return `
+    <tr>
+      <td>${item.id}</td>
+      <td>${created}</td>
+      <td>${item.company}</td>
+      <td>${item.product}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>Completed</td>
+      <td><a href="/confirm/${item.cert_number}" target="_blank">${item.cert_number}</a></td>
+    </tr>
+  `;
+}).join('');
+
 
 
     function applyCertFilters(){
