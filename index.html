@@ -652,7 +652,14 @@ const apps = data.items;
         <td class="px-3 py-2">${a.contact}</td>
         <td class="px-3 py-2">${a.email}</td>
         <td class="px-3 py-2">${a.status}</td>
-        <td class="px-3 py-2">${a.cert_number||''}</td>
+        <td class="px-3 py-2">
+  <a class="text-sky-700 underline" 
+     href="/confirm/${encodeURIComponent(a.cert_number)}" 
+     target="_blank">
+    ${a.cert_number}
+  </a>
+</td>
+
       </tr>`;
     }).join('');
   });
