@@ -282,33 +282,6 @@ app.get('/api/my/applications', authCompany, (req, res) => {
   res.json(result);
 });
 
-// ===== PUBLIC: Completed certificates =====
-app.get('/api/public/completed', (req, res) => {
-  const db = loadDb();
-
-  const items = db.applications
-    .filter(a => a.status === 'Completed' && a.cert_number)
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .map(a => {
-      const company = db.companies.find(c => c.id === a.companyId);
-      return {
-        _id: a.id,
-        company: {
-          name: company ? company.name : 'N/A'
-        },
-        product: a.product,
-        contact: a.contact,
-        email: a.email,
-        status: a.status,
-        cert_number: a.cert_number,
-        createdAt: a.createdAt,
-        pdf: `/certificates/${encodeURIComponent(a.cert_number)}.pdf`
-      };
-    });
-
-  res.json({ items });
-});
-
 // ===== Documents (public) =====
 
 app.get('/api/documents', async (req, res) => {
@@ -465,8 +438,8 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   saveDb(db);
 
   const company = db.companies.find(c => c.id === appDoc.companyId);
-  const baseUrl = "https://diabreg.onrender.com";
-const confirmUrl = `${baseUrl}/confirm/${encodeURIComponent(appDoc.cert_number)}`;
+  const baseUrl = getBaseUrl(req);
+  const confirmUrl = `${baseUrl}/confirm/${encodeURIComponent(appDoc.cert_number)}`;
 
   const pdfPath = path.join(CERT_DIR, `${appDoc.cert_number}.pdf`);
 
@@ -622,6 +595,31 @@ app.post('/api/payment/session', authCompany, express.json(), async (req, res) =
     console.error('Payoneer session error', e.response?.data || e);
     res.status(500).json({ error:'Не може да се отвори плаќање' });
   }
+});
+
+// ===== PUBLIC: Completed certificates (no auth) =====
+app.get('/api/public/completed', (req, res) => {
+  const db = loadDb();
+
+  const items = db.applications
+    .filter(a => a.status === 'Completed' && a.cert_number)
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .map(a => {
+      const company = db.companies.find(c => c.id === a.companyId);
+      return {
+        _id: a.id,
+        company: company ? { name: company.name } : null,
+        product: a.product,
+        contact: a.contact,
+        email: a.email,
+        status: a.status,
+        cert_number: a.cert_number,
+        createdAt: a.createdAt,
+        pdf: `/certificates/${encodeURIComponent(a.cert_number)}.pdf`
+      };
+    });
+
+  res.json({ items });
 });
 
 // ===== Health & SPA routes =====
