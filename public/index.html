@@ -651,13 +651,12 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
       return;
     }
 
-    const data = await res.json();
-    const apps = Array.isArray(data.items) ? data.items : [];
+    const apps = await res.json(); // ← ОВА Е КЛУЧНО
 
     const tb = certified.querySelector('tbody');
     tb.innerHTML = apps.map(a => {
       const createdAt = a.createdAt ? new Date(a.createdAt).toLocaleString('mk-MK') : '';
-      const companyName = a.company && a.company.name ? a.company.name : '';
+      const companyName = a.company?.name || '';
       const certLink = a.cert_number
         ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(a.cert_number)}" target="_blank">${a.cert_number}</a>`
         : '';
@@ -681,6 +680,7 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
     alert('Грешка при вчитување');
   }
 });
+
 
 // Документи и регулативи
   document.querySelectorAll('#btnDocs').forEach(el=>{
