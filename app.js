@@ -25,7 +25,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'replace_with_env_secret';
 // Directories
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const CERT_DIR = path.join(__dirname, 'certificates');
+const CERT_DIR   = path.join(__dirname, 'certificates');
 
 
 // Ensure dirs exist
@@ -598,24 +598,40 @@ app.post('/api/payment/session', authCompany, express.json(), async (req, res) =
 });
 
 // ===== PUBLIC: Completed certificates (no auth) =====
+
+
+// ===== PUBLIC: Completed certificates (no auth) =====
 app.get('/api/public/completed', (req, res) => {
   const db = loadDb();
 
   const items = db.applications
     .filter(a => a.status === 'Completed' && a.cert_number)
-    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
     .map(a => {
       const company = db.companies.find(c => c.id === a.companyId);
+      const issueDate = a.updatedAt ? new Date(a.updatedAt) : (a.createdAt ? new Date(a.createdAt) : null);
+      let validTo = null;
+      if (issueDate) {
+        validTo = new Date(issueDate);
+        validTo.setFullYear(validTo.getFullYear() + 1);
+      }
       return {
         _id: a.id,
-        company: company ? { name: company.name } : null,
+        company: company ? {
+          name: company.name,
+          matichen_broj: company.matichen_broj,
+          email: company.email
+        } : null,
         product: a.product,
+        category: a.category,
         contact: a.contact,
         email: a.email,
         status: a.status,
         cert_number: a.cert_number,
         createdAt: a.createdAt,
-        pdf: `/certificates/${encodeURIComponent(a.cert_number)}.pdf`
+        updatedAt: a.updatedAt,
+        validTo: validTo ? validTo.toISOString() : null,
+        pdf: a.cert_number ? `/certificates/${encodeURIComponent(a.cert_number)}.pdf` : null
       };
     });
 
