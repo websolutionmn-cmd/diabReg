@@ -651,40 +651,36 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
       return;
     }
 
-    const json = await res.json();
-    const apps = json.items || [];
+    const data = await res.json();
+    const apps = Array.isArray(data.items) ? data.items : [];
 
     const tb = certified.querySelector('tbody');
-
     tb.innerHTML = apps.map(a => {
       const createdAt = a.createdAt ? new Date(a.createdAt).toLocaleString('mk-MK') : '';
-      const companyName = a.company?.name || '';
-      const contact = a.contact || '';
-      const email = a.email || '';
-      const status = a.status || '';
+      const companyName = a.company && a.company.name ? a.company.name : '';
       const certLink = a.cert_number
         ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(a.cert_number)}" target="_blank">${a.cert_number}</a>`
         : '';
+      const contact = a.contact || '';
+      const email = a.email || '';
+      const status = a.status || '';
 
-      return `
-        <tr class="hover:bg-slate-50">
-          <td class="px-3 py-2">${a._id}</td>
-          <td class="px-3 py-2">${createdAt}</td>
-          <td class="px-3 py-2">${companyName}</td>
-          <td class="px-3 py-2">${a.product}</td>
-          <td class="px-3 py-2">${contact}</td>
-          <td class="px-3 py-2">${email}</td>
-          <td class="px-3 py-2">${status}</td>
-          <td class="px-3 py-2">${certLink}</td>
-        </tr>
-      `;
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-3 py-2">${a._id || ''}</td>
+        <td class="px-3 py-2">${createdAt}</td>
+        <td class="px-3 py-2">${companyName}</td>
+        <td class="px-3 py-2">${a.product || ''}</td>
+        <td class="px-3 py-2">${contact}</td>
+        <td class="px-3 py-2">${email}</td>
+        <td class="px-3 py-2">${status}</td>
+        <td class="px-3 py-2">${certLink}</td>
+      </tr>`;
     }).join('');
   } catch (err) {
     console.error('Error loading completed applications', err);
     alert('Грешка при вчитување');
   }
 });
-
 
 // Документи и регулативи
   document.querySelectorAll('#btnDocs').forEach(el=>{
@@ -790,49 +786,23 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
   });
 
   // Поднеси апликација
-    // Поднеси апликација + Stripe плаќање
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!token) return alert('Мора да се најавиш');
     if (!acceptTerms.checked) return alert('Мора да ги прифатите условите');
 
-    try {
-      // 1) Прво ја креираме апликацијата (со документи)
-      const fd = new FormData(form);
-      const applyRes  = await fetch('/api/apply', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token },
-        body: fd
-      });
-      const applyJson = await applyRes.json();
-      if (!applyRes.ok || !applyJson.id) {
-        return alert('Грешка при поднесување: ' + (applyJson.error || ''));
-      }
-
-      // 2) Потоа стартуваме Stripe Checkout за таа апликација
-      const payRes = await fetch('/api/pay/checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ applicationId: applyJson.id })
-      });
-      const payJson = await payRes.json();
-
-      if (!payRes.ok || !payJson.url) {
-        alert('Апликацијата е поднесена (ID: ' + applyJson.id + '), но не може да се отвори страница за плаќање. Ве молиме контактирајте нè.');
-        return;
-      }
-
-      // 3) Редирект кон Stripe страница за плаќање
-      window.location = payJson.url;
-    } catch (err) {
-      console.error(err);
-      alert('Непредвидена грешка при поднесување или плаќање.');
+    const fd = new FormData(form);
+    const applyRes  = await fetch('/api/apply', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token },
+      body: fd
+    });
+    const applyJson = await applyRes.json();
+    if (!applyJson.id) {
+      return alert('Грешка при поднесување: ' + (applyJson.error||''));
     }
+    alert('Апликацијата е поднесена! Вашето ID е ' + applyJson.id);
   });
-
 
   // Проверка статус
   document.getElementById('checkBtn').addEventListener('click', async () => {
