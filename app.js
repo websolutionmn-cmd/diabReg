@@ -282,6 +282,33 @@ app.get('/api/my/applications', authCompany, (req, res) => {
   res.json(result);
 });
 
+// ===== PUBLIC: Completed certificates =====
+app.get('/api/public/completed', (req, res) => {
+  const db = loadDb();
+
+  const items = db.applications
+    .filter(a => a.status === 'Completed' && a.cert_number)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .map(a => {
+      const company = db.companies.find(c => c.id === a.companyId);
+      return {
+        _id: a.id,
+        company: {
+          name: company ? company.name : 'N/A'
+        },
+        product: a.product,
+        contact: a.contact,
+        email: a.email,
+        status: a.status,
+        cert_number: a.cert_number,
+        createdAt: a.createdAt,
+        pdf: `/certificates/${encodeURIComponent(a.cert_number)}.pdf`
+      };
+    });
+
+  res.json({ items });
+});
+
 // ===== Documents (public) =====
 
 app.get('/api/documents', async (req, res) => {

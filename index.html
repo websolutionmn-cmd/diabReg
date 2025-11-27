@@ -638,7 +638,9 @@ const res = await fetch('/api/public/completed');
 
     if (!res.ok) return alert('Грешка при вчитување');
 
-    const apps = (await res.json()).filter(x=>x.status==='Completed');
+    const data = await res.json();
+const apps = data.items;
+
     const tb = certified.querySelector('tbody');
     tb.innerHTML = apps.map(a=>{
       const d = new Date(a.createdAt).toLocaleString('mk-MK');
