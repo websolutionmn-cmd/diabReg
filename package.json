@@ -1,29 +1,30 @@
 {
-  "name": "diab-reg-app",
+  "name": "diabreg",
   "version": "1.0.0",
+  "description": "DIAB-REG JSON Backend with Stripe Integration",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node app.js"
   },
   "dependencies": {
-    "axios": "^1.9.0",
-    "bcrypt": "^6.0.0",
+    "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.3",
-    "bwip-js": "^4.6.0",
-    "dotenv": "^16.5.0",
-    "express": "^4.21.2",
-    "express-session": "^1.18.1",
+    "body-parser": "^1.20.2",
+    "bwip-js": "^2.2.4",
+    "express": "^4.19.2",
+    "express-session": "^1.17.3",
+    "fs-extra": "^11.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^7.8.7",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.9.3",
-    "pdfkit": "^0.13.0",
-    "uuid": "^11.1.0"
+    "pdfkit": "^0.15.0",
+    "stripe": "^12.0.0",
+    "uuid": "^9.0.1"
   },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  }
+  "engines": {
+    "node": "22.x"
+  },
+  "keywords": [],
+  "author": "Martin Nikolov",
+  "license": "ISC"
 }
