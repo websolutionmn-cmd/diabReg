@@ -537,7 +537,8 @@ app.get('/confirm/:certNumber', (req, res) => {
         <p class="meta"><strong>Категорија:</strong> ${appDoc.category || ''}</p>
         <p class="meta"><strong>Статус:</strong> ${appDoc.status}</p>
         <p class="meta"><strong>Важи до:</strong> ${validTo.toLocaleDateString('mk-MK')}</p>
-        <a class="btn" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
+        <p class="meta"><strong>Оваа потврда е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија - СЗДСМ -(szdm.mk@gmail.com) </strong> </p>
+		<a class="btn" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
       </div>
     </body>
     </html>
