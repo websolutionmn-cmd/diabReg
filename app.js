@@ -1,4 +1,4 @@
-// app.js - DIAB-REG JSON-based backend (no Mongo)
+// app.js - DIAB-REG JSON-based backend (no Mongo, cleaned & optimized)
 
 const express     = require('express');
 const session     = require('express-session');
@@ -12,8 +12,8 @@ const PDFDocument = require('pdfkit');
 const bwipjs      = require('bwip-js');
 const path        = require('path');
 const { v4: uuidv4 } = require('uuid');
+// axios може да се користи подоцна (на пр. за интеграции)
 const axios       = require('axios');
-const stripe      = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const { loadDb, saveDb }   = require('./utils/jsonDb');
 const { logAction, readLogs } = require('./utils/logger');
@@ -23,54 +23,53 @@ const app  = express();
 const PORT = process.env.PORT || 5050;
 const JWT_SECRET = process.env.JWT_SECRET || 'replace_with_env_secret';
 
-// Directories
+// ================== ДИРЕКТОРИУМИ ==================
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const CERT_DIR   = path.join(__dirname, 'certificates');
 
-// Ensure dirs exist
+// Осигурај се дека постојат
 [PUBLIC_DIR, UPLOAD_DIR, CERT_DIR].forEach(dir => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
-// Logging
+// ================== LOGGING ==================
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags:'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-// Sessions (for staff / admin)
+// ================== СЕСИИ (ADMIN) ==================
 app.use(session({
   secret: 'diabreg-session-key',
   resave: false,
   saveUninitialized: false
 }));
 
-// Body parsers
+// ================== BODY PARSERS ==================
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended:true }));
 
-// Static
+// ================== STATIC ==================
 app.use('/uploads',      express.static(UPLOAD_DIR));
 app.use('/certificates', express.static(CERT_DIR));
 app.use('/documents',    express.static(path.join(PUBLIC_DIR, 'documents')));
 app.use('/logo.jpg',     express.static(path.join(PUBLIC_DIR, 'logo.jpg')));
 app.use(express.static(PUBLIC_DIR));
 
-// Multer for uploads
+// ================== MULTER (UPLOAD) ==================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const safe   = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const safe   = file.originalname.replace(/[^a-zA-Z0-9.\\-_]/g, '_');
     cb(null, unique + '_' + safe);
   }
 });
 const upload = multer({ storage });
 
-// ===== Helpers =====
-
-// фиксен base URL кон Render
-function getBaseUrl(_req) {
-  return process.env.BASE_URL || 'https://diabreg.onrender.com';
+// ================== HELPERS ==================
+function getBaseUrl(req) {
+  if (process.env.BASE_URL) return process.env.BASE_URL;
+  return req.protocol + '://' + req.get('host');
 }
 
 function createCompanyToken(company) {
@@ -86,10 +85,12 @@ function createCompanyToken(company) {
   );
 }
 
-// JWT auth for companies
+// JWT auth за компании
 function authCompany(req, res, next) {
   const header = req.headers['authorization'] || '';
-  const [, token] = header.split(' ');
+  const parts = header.split(' ');
+  const token = parts.length === 2 ? parts[1] : null;
+
   if (!token) return res.status(401).json({ error: 'Недостасува токен.' });
   try {
     const payload = jwt.verify(token, JWT_SECRET);
@@ -112,8 +113,7 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ===== Staff login (admin / processor / certifier) =====
-
+// ================== STAFF LOGIN (ADMIN / PROCESSOR / CERTIFIER) ==================
 app.get('/login', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'login.html'));
 });
@@ -138,7 +138,7 @@ app.get('/admin', requireAdmin, (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'admin.html'));
 });
 
-// ===== Company auth (JSON DB + JWT) =====
+// ================== COMPANY AUTH (JSON DB + JWT) ==================
 
 // Register company
 app.post('/api/auth/register', (req, res) => {
@@ -194,9 +194,9 @@ app.post('/api/auth/login', async (req, res) => {
   res.json({ token });
 });
 
-// ===== Applications (company side) =====
+// ================== APPLICATIONS (COMPANY SIDE) ==================
 
-// Submit application (сеуште постои, но Stripe плаќањето е одделно)
+// Submit application
 app.post('/api/apply', authCompany, upload.array('docs', 30), (req, res) => {
   const { contact, email, category, product } = req.body || {};
   if (!contact || !email || !category || !product) {
@@ -231,7 +231,7 @@ app.post('/api/apply', authCompany, upload.array('docs', 30), (req, res) => {
 });
 
 // Status check (public)
-app.get('/api/status/:id', async (req, res) => {
+app.get('/api/status/:id', (req, res) => {
   const db = loadDb();
   const appDoc = db.applications.find(a => a.id === req.params.id);
   if (!appDoc) {
@@ -281,8 +281,7 @@ app.get('/api/my/applications', authCompany, (req, res) => {
   res.json(result);
 });
 
-// ===== Documents (public) =====
-
+// ================== DOCUMENTS (PUBLIC) ==================
 app.get('/api/documents', async (req, res) => {
   try {
     const docsDir = path.join(PUBLIC_DIR, 'documents');
@@ -294,15 +293,14 @@ app.get('/api/documents', async (req, res) => {
   }
 });
 
-// ===== Admin API (JSON DB) =====
-
+// ================== ADMIN API (JSON DB) ==================
 const ROLE_STATUSES = {
   super:     ['Pending','In Process','Certifying','Completed'],
   processor: ['Pending','In Process'],
   certifier: ['Certifying','Completed']
 };
 
-// List applications for admin (си останува за admin panel)
+// List applications for admin
 app.get('/api/admin/applications', requireAdmin, (req, res) => {
   const db = loadDb();
   const role = req.session.user.role;
@@ -406,8 +404,7 @@ app.get('/api/admin/logs', requireAdmin, (req, res) => {
   res.json(readLogs());
 });
 
-// ===== Certificates =====
-
+// ================== CERTIFICATES ==================
 function generateCertNumber() {
   const now = new Date();
   return 'DIAB-' +
@@ -417,6 +414,7 @@ function generateCertNumber() {
     '-' + now.getTime();
 }
 
+// Генерирај PDF за сертификат (admin-only)
 app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   const db = loadDb();
   const appDoc = db.applications.find(a => a.id === req.params.id);
@@ -437,12 +435,17 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   const pdfPath = path.join(CERT_DIR, `${appDoc.cert_number}.pdf`);
 
   const doc = new PDFDocument({ size: 'A4', margin: 50 });
-  doc.registerFont('Deja', path.join(__dirname,'public','fonts','DejaVuSans.ttf'));
-  doc.font('Deja');
+  try {
+    doc.registerFont('Deja', path.join(__dirname,'public','fonts','DejaVuSans.ttf'));
+    doc.font('Deja');
+  } catch (e) {
+    console.error('Font load error:', e);
+  }
   const stream = fs.createWriteStream(pdfPath);
   doc.pipe(stream);
 
-  doc.fontSize(22).text('Стандартизирана потврда за производ', { align: 'center' });
+  // Header
+  doc.fontSize(22).text('Стандарнизирана потврда за производ', { align: 'center' });
   doc.moveDown();
   doc.fontSize(14).text(`Компанија: ${company ? company.name : 'N/A'}`);
   doc.text(`ЕМБС: ${company ? company.matichen_broj : 'N/A'}`);
@@ -458,7 +461,15 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   doc.text(`Датум на издавање: ${issueDate.toLocaleString('mk-MK')}`);
   doc.text(`Важност до: ${validTo.toLocaleDateString('mk-MK')}`);
   doc.moveDown();
+  doc.fontSize(12).text(
+    'Стандарнизирана потврда за производ е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија.\n' +
+    'Има важност од една година од датумот на издавање.\n' +
+    'За повеќе: +389 78 395 246 или websolution.mn@gmail.com',
+    { align: 'center' }
+  );
+  doc.moveDown();
 
+  // QR со линк до confirm
   try {
     const png = await bwipjs.toBuffer({
       bcid: 'qrcode',
@@ -487,7 +498,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   });
 });
 
-// Public confirmation page + Види процес (timeline)
+// ================== PUBLIC CONFIRM PAGE ==================
 app.get('/confirm/:certNumber', (req, res) => {
   const { certNumber } = req.params;
   const db = loadDb();
@@ -501,7 +512,30 @@ app.get('/confirm/:certNumber', (req, res) => {
   const validTo = new Date(issueDate);
   validTo.setFullYear(validTo.getFullYear() + 1);
 
-  const historyJson = JSON.stringify(appDoc.statusHistory || []);
+  const history = appDoc.statusHistory || [];
+  let historyHtml = '';
+
+  if (!history.length) {
+    historyHtml = '<p>Нема внесени статуси за процесот на сертификација.</p>';
+  } else {
+    historyHtml = history.map(h => {
+      const ts = h.timestamp ? new Date(h.timestamp).toLocaleString('mk-MK') : '';
+      const safeMessage = (h.message || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const safeStatus  = (h.status  || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const safeUser    = (h.user    || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return `
+        <div class="timeline-item">
+          <div class="timeline-point"></div>
+          <div class="timeline-content">
+            <p><strong>Статус:</strong> ${safeStatus}</p>
+            <p><strong>Корисник:</strong> ${safeUser}</p>
+            <p><strong>Датум:</strong> ${ts}</p>
+            <p class="timeline-message"><strong>Коментар:</strong><br>${safeMessage}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
 
   const html = `
     <!DOCTYPE html>
@@ -510,223 +544,268 @@ app.get('/confirm/:certNumber', (req, res) => {
       <meta charset="UTF-8"/>
       <title>Потврда ${certNumber}</title>
       <style>
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f3f4f6; margin:0; padding:0; }
-        .wrap { max-width:900px; margin:40px auto; background:#fff; padding:24px 32px; border-radius:12px; box-shadow:0 10px 25px rgba(15,23,42,0.12); }
-        h1 { margin-top:0; color:#111827; }
-        .meta { margin:8px 0; color:#4b5563; line-height:1.5; }
-        .btn {
-          display:inline-block; margin-top:18px; padding:10px 18px;
-          border-radius:999px; border:1px solid #2563eb; color:#2563eb; text-decoration:none;
-          background:#fff; cursor:pointer;
+        body {
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          background:#0f172a;
+          margin:0;
+          padding:0;
         }
-        .btn.primary {
-          background:#2563eb; color:#fff;
+        .outer {
+          min-height:100vh;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:24px;
         }
-        .btn:hover { box-shadow:0 4px 12px rgba(37,99,235,0.25); }
-        /* Modal */
-        #processModal {
-          display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55);
-          padding-top:80px; z-index:50;
+        .wrap {
+          max-width:900px;
+          width:100%;
+          background:#ffffff;
+          padding:24px 28px 28px;
+          border-radius:18px;
+          box-shadow:0 18px 45px rgba(15,23,42,0.30);
+          border:1px solid rgba(148,163,184,0.45);
         }
-        #processModalInner {
-          background:white; max-width:640px; margin:auto; padding:20px 24px;
-          border-radius:16px; box-shadow:0 20px 45px rgba(15,23,42,0.35);
+        .header {
+          display:flex;
+          align-items:center;
+          gap:16px;
+          margin-bottom:18px;
+        }
+        .header img.logo {
+          height:52px;
+          width:auto;
+          border-radius:12px;
+          background:#ffffff;
+          padding:4px 6px;
+          box-shadow:0 6px 15px rgba(15,23,42,0.18);
+        }
+        h1 {
+          margin:0;
+          font-size:20px;
+          color:#0f172a;
+        }
+        .subtitle {
+          margin:2px 0 0;
+          font-size:13px;
+          color:#6b7280;
+        }
+        .meta {
+          margin:10px 0;
+          color:#374151;
+          line-height:1.5;
+          font-size:14px;
+        }
+        .meta strong {
+          color:#111827;
+        }
+        .highlight-box {
+          margin:14px 0;
+          padding:10px 12px;
+          border-radius:10px;
+          background:#eff6ff;
+          border:1px solid #bfdbfe;
+          font-size:13px;
+          color:#1e3a8a;
+        }
+        .btn-row {
+          margin-top:18px;
+          display:flex;
+          flex-wrap:wrap;
+          gap:10px;
+        }
+        a.btn {
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          padding:9px 16px;
+          border-radius:999px;
+          border:1px solid #2563eb;
+          color:#2563eb;
+          background:#ffffff;
+          text-decoration:none;
+          font-size:13px;
+          font-weight:500;
+        }
+        a.btn:hover {
+          background:#2563eb;
+          color:#ffffff;
+        }
+        .btn-secondary {
+          border-color:#64748b;
+          color:#0f172a;
+        }
+        .btn-secondary:hover {
+          background:#0f172a;
+          color:#ffffff;
+          border-color:#0f172a;
+        }
+        .two-col {
+          display:grid;
+          grid-template-columns: minmax(0,1.4fr) minmax(0,1.1fr);
+          gap:20px;
+          margin-top:22px;
+        }
+        .card {
+          border-radius:14px;
+          border:1px solid #e5e7eb;
+          background:#f9fafb;
+          padding:14px 16px 16px;
+        }
+        .card h2 {
+          margin:0 0 8px;
+          font-size:15px;
+          color:#111827;
+        }
+        .section-label {
+          text-transform:uppercase;
+          font-size:10px;
+          letter-spacing:0.08em;
+          color:#9ca3af;
+          margin-bottom:4px;
+        }
+        .timeline-container {
+          position:relative;
+          margin-top:4px;
+        }
+        .timeline-container::before {
+          content:'';
+          position:absolute;
+          left:8px;
+          top:4px;
+          bottom:4px;
+          width:2px;
+          background:linear-gradient(to bottom, #60a5fa, #22c55e);
+          opacity:0.7;
+        }
+        .timeline-item {
+          position:relative;
+          padding-left:26px;
+          margin-bottom:14px;
+        }
+        .timeline-point {
+          position:absolute;
+          left:3px;
+          top:5px;
+          width:11px;
+          height:11px;
+          border-radius:999px;
+          background:#ffffff;
+          border:2px solid #2563eb;
+          box-shadow:0 0 0 2px rgba(191,219,254,0.8);
+        }
+        .timeline-content {
+          font-size:12px;
+          color:#374151;
+          background:#f9fafb;
+          border-radius:10px;
+          padding:8px 10px;
+          border:1px solid #e5e7eb;
+        }
+        .timeline-content p {
+          margin:2px 0;
+        }
+        .timeline-message {
+          margin-top:6px !important;
+          font-size:12px;
+          white-space:pre-wrap;
+        }
+        @media (max-width: 768px) {
+          .wrap {
+            padding:18px 16px 20px;
+          }
+          .two-col {
+            grid-template-columns: minmax(0,1fr);
+          }
         }
       </style>
     </head>
     <body>
-      <div class="wrap">
-        <h1>Потврда за производ</h1>
-        <p class="meta"><strong>Број на потврда:</strong> ${certNumber}</p>
-        <p class="meta"><strong>Компанија:</strong> ${company ? company.name : 'N/A'}</p>
-        <p class="meta"><strong>Производ:</strong> ${appDoc.product}</p>
-        <p class="meta"><strong>Категорија:</strong> ${appDoc.category || ''}</p>
-        <p class="meta"><strong>Статус:</strong> ${appDoc.status}</p>
-        <p class="meta"><strong>Важи до:</strong> ${validTo.toLocaleDateString('mk-MK')}</p>
-        <p class="meta"><strong>Оваа потврда е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија - СЗДСМ (szdm.mk@gmail.com)</strong></p>
+      <div class="outer">
+        <div class="wrap">
 
-        <a class="btn primary" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
-        <button class="btn" id="openProcessBtn">Види процес</button>
-      </div>
+          <div class="header">
+            <img src="/logo.jpg" alt="DIAB-REG" class="logo"/>
+            <div>
+              <div class="section-label">Стандарди и потврди</div>
+              <h1>Потврда за производ</h1>
+              <p class="subtitle">Издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија (СЗДСМ)</p>
+            </div>
+          </div>
 
-      <div id="processModal">
-        <div id="processModalInner">
-          <h2 style="margin-top:0; color:#111827;">Процес на сертификација</h2>
-          <div id="processContent" style="max-height:400px; overflow-y:auto; margin-top:12px;"></div>
-          <button id="closeProcessBtn"
-                  style="margin-top:15px; padding:8px 14px; border-radius:8px; border:1px solid #2563eb;
-                         background:#2563eb; color:white; cursor:pointer;">
-            Затвори
-          </button>
+          <div class="two-col">
+            <div class="card">
+              <h2>Податоци за потврдата</h2>
+              <p class="meta"><strong>Број на потврда:</strong> ${certNumber}</p>
+              <p class="meta"><strong>Компанија:</strong> ${company ? company.name : 'N/A'}</p>
+              <p class="meta"><strong>Производ:</strong> ${appDoc.product}</p>
+              <p class="meta"><strong>Категорија:</strong> ${appDoc.category || ''}</p>
+              <p class="meta"><strong>Статус:</strong> ${appDoc.status}</p>
+              <p class="meta"><strong>Важи до:</strong> ${validTo.toLocaleDateString('mk-MK')} г.</p>
+              <div class="highlight-box">
+                Оваа потврда е издадена исклучиво за производи наменети за лица со дијабетес, во координација со СЗДСМ.
+              </div>
+              <div class="btn-row">
+                <a class="btn" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Процес на сертификација</h2>
+              <div class="timeline-container">
+                ${historyHtml}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <script>
-        (function(){
-          var history = ${historyJson};
-
-          var modal   = document.getElementById('processModal');
-          var openBtn = document.getElementById('openProcessBtn');
-          var closeBtn= document.getElementById('closeProcessBtn');
-          var content = document.getElementById('processContent');
-
-          openBtn.addEventListener('click', function(){
-            modal.style.display = 'block';
-          });
-          closeBtn.addEventListener('click', function(){
-            modal.style.display = 'none';
-          });
-          modal.addEventListener('click', function(ev){
-            if (ev.target === modal) {
-              modal.style.display = 'none';
-            }
-          });
-
-          if (!history || !history.length) {
-            content.innerHTML = '<p>Нема внесени статуси.</p>';
-            return;
-          }
-
-          var html = '';
-          for (var i=0; i<history.length; i++) {
-            var h = history[i];
-            var dt = h.timestamp ? new Date(h.timestamp).toLocaleString('mk-MK') : '';
-            html += '' +
-              '<div style="display:flex; gap:12px; margin-bottom:16px;">' +
-                '<div style="width:14px; display:flex; flex-direction:column; align-items:center;">' +
-                  '<div style="width:10px;height:10px;border-radius:999px;background:#2563eb;"></div>' +
-                  (i < history.length-1
-                    ? '<div style="flex:1;width:2px;background:#cbd5f5;margin-top:2px;"></div>'
-                    : ''
-                  ) +
-                '</div>' +
-                '<div style="flex:1; padding:10px 12px; border-radius:8px; background:#f3f4f6;">' +
-                  '<div style="font-weight:600; color:#111827;">Статус: ' + (h.status || '') + '</div>' +
-                  '<div style="font-size:12px; color:#4b5563; margin-top:2px;">' +
-                    (dt || '') + (h.user ? ' · ' + h.user : '') +
-                  '</div>' +
-                  '<div style="font-size:13px; color:#111827; margin-top:6px; white-space:pre-wrap;">' +
-                    (h.message || '') +
-                  '</div>' +
-                '</div>' +
-              '</div>';
-          }
-          content.innerHTML = html;
-        })();
-      </script>
     </body>
     </html>
   `;
   res.send(html);
 });
 
-// ===== Stripe payments (варијанта A, MKD → EUR) =====
-
-// Цени во МКД според категориите во index.html
-const CATEGORY_PRICES_MKD = {
-  'Додатоци и потрошен материјал': 2500,
-  'Потрошен материјал за мерење/инјектирање': 4000,
-  'Уреди за мерење': 7500,
-  'Уреди за апликација на инсулин': 10000,
-  'Автоматизирани системи': 15000
-};
-
-// едноставна конверзија MKD → EUR cents (приближно)
-function mkdToEurCents(mkd) {
-  const rate = 61.5; // 1 EUR ≈ 61.5 MKD (пример)
-  const eur = mkd / rate;
-  return Math.round(eur * 100);
-}
-
-// Користиме ИСТАТА рута како претходно Payoneer: /api/payment/session
-// Frontend: праќа { category } и добива { url } за Stripe Checkout
-app.post('/api/payment/session', authCompany, async (req, res) => {
-  try {
-    const { category } = req.body || {};
-    const mkd = CATEGORY_PRICES_MKD[category];
-
-    if (!category || !mkd) {
-      return res.status(400).json({ error: 'Невалидна категорија' });
-    }
-
-    const amountEurCents = mkdToEurCents(mkd);
-
-    const baseUrl = getBaseUrl(req);
-
-    const sessionStripe = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            unit_amount: amountEurCents,
-            product_data: {
-              name: 'DIAB-REG сертификат',
-              description: `Категорија: ${category} (цената е дефинирана во МКД во DIAB-REG системот)`
-            }
-          },
-          quantity: 1
-        }
-      ],
-      metadata: {
-        diabreg_category: category,
-        diabreg_mkd_price: String(mkd),
-        diabreg_companyId: req.company.companyId,
-        diabreg_companyName: req.company.name || ''
-      },
-      success_url: `${baseUrl}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/payment-cancel.html`
-    });
-
-    res.json({ id: sessionStripe.id, url: sessionStripe.url });
-  } catch (e) {
-    console.error('Stripe session error', e);
-    res.status(500).json({ error: 'Не може да се отвори плаќање' });
-  }
-});
-
-// ===== PUBLIC: Completed certificates (no auth, за "Потврдени производи") =====
-
+// ================== PUBLIC: COMPLETED CERTIFICATES (NO AUTH) ==================
 app.get('/api/public/completed', (req, res) => {
   const db = loadDb();
 
-  const items = db.applications
+  const apps = db.applications
     .filter(a => a.status === 'Completed' && a.cert_number)
-    .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
-    .map(a => {
-      const company = db.companies.find(c => c.id === a.companyId);
-      const issueDate = a.updatedAt ? new Date(a.updatedAt) : (a.createdAt ? new Date(a.createdAt) : null);
-      let validTo = null;
-      if (issueDate) {
-        validTo = new Date(issueDate);
-        validTo.setFullYear(validTo.getFullYear() + 1);
-      }
-      return {
-        _id: a.id,
-        company: company ? {
-          name: company.name,
-          matichen_broj: company.matichen_broj,
-          email: company.email
-        } : null,
-        product: a.product,
-        category: a.category,
-        contact: a.contact,
-        email: a.email,
-        status: a.status,
-        cert_number: a.cert_number,
-        createdAt: a.createdAt,
-        updatedAt: a.updatedAt,
-        validTo: validTo ? validTo.toISOString() : null,
-        pdf: a.cert_number ? `/certificates/${encodeURIComponent(a.cert_number)}.pdf` : null
-      };
-    });
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0));
 
-  res.json({ items });
+  const result = apps.map(a => {
+    const company = db.companies.find(c => c.id === a.companyId);
+    const issueDate = a.updatedAt ? new Date(a.updatedAt) : (a.createdAt ? new Date(a.createdAt) : null);
+    let validTo = null;
+    if (issueDate) {
+      validTo = new Date(issueDate);
+      validTo.setFullYear(validTo.getFullYear() + 1);
+    }
+    return {
+      _id: a.id,
+      company: company ? {
+        name: company.name,
+        matichen_broj: company.matichen_broj,
+        email: company.email
+      } : { name: 'N/A', matichen_broj: '', email: '' },
+      product: a.product,
+      category: a.category,
+      contact: a.contact,
+      email: a.email,
+      status: a.status,
+      cert_number: a.cert_number,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
+      validTo: validTo ? validTo.toISOString() : null,
+      pdf: a.cert_number ? `/certificates/${encodeURIComponent(a.cert_number)}.pdf` : null
+    };
+  });
+
+  res.json(result);
 });
 
-// ===== Health & SPA routes =====
-
+// ================== HEALTH & SPA ROUTES ==================
 app.get('/api/health', (req, res) => {
   res.json({ ok:true, time:new Date().toISOString() });
 });
@@ -745,7 +824,7 @@ app.get('/agent', (req, res) => {
   res.sendFile(path.join(PUBLIC_DIR, 'agent.html'));
 });
 
-// Start
+// ================== START SERVER ==================
 app.listen(PORT, () => {
   console.log(`🚀 DIAB-REG JSON server listening on port ${PORT}`);
 });
