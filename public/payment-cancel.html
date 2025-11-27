@@ -3,9 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <title>Откажано плаќање</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      padding-top: 80px;
+      color: #1f2937;
+    }
+
+    .box {
+      background: white;
+      max-width: 480px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #b91c1c;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 15px;
+      margin-bottom: 25px;
+      color: #374151;
+    }
+
+    a.button {
+      display: inline-block;
+      padding: 12px 22px;
+      background: #2563eb;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    a.button:hover {
+      background: #1d4ed8;
+    }
+  </style>
 </head>
 <body>
-  <h1>Плаќањето е откажано</h1>
-  <p>Не е извршена наплата. Можете повторно да се најавите во DIAB-REG и да поднесете нова апликација или да се обидете повторно.</p>
+
+  <div class="box">
+    <h1>Плаќањето е откажано</h1>
+    <p>Не е извршена наплата. Можете повторно да се обидете или да се вратите назад.</p>
+
+    <a class="button" href="https://diabreg.onrender.com">
+      ↩ Врати се на DIAB-REG
+    </a>
+  </div>
+
 </body>
 </html>
