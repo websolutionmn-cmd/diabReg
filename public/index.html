@@ -651,8 +651,8 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
       return;
     }
 
-    const data = await res.json();
-    const apps = Array.isArray(data.items) ? data.items : [];
+    const apps = await res.json();
+
 
     const tb = certified.querySelector('tbody');
     tb.innerHTML = apps.map(a => {
