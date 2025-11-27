@@ -567,28 +567,33 @@ app.get('/confirm/:certNumber', (req, res) => {
 </div>
 
 <script>
-  const history = ${JSON.stringify(appDoc.statusHistory || [])};
+  (function() {
+    const history = ${JSON.stringify(appDoc.statusHistory || [])};
+    const container = document.getElementById('processContent');
 
-  const container = document.getElementById('processContent');
+    if (!history || history.length === 0) {
+      container.innerHTML = "<p>Нема внесени статуси.</p>";
+      return;
+    }
 
-  if (!history || history.length === 0) {
-    container.innerHTML = "<p>Нема внесени статуси.</p>";
-  } else {
     let html = "";
+
     history.forEach(h => {
-      html += `
-        <div style="padding:10px; margin-bottom:10px; border-left:4px solid #2563eb; background:#f3f4f6;">
-          <strong>Статус:</strong> ${h.status}<br>
-          <strong>Корисник:</strong> ${h.user}<br>
-          <strong>Датум:</strong> ${new Date(h.timestamp).toLocaleString('mk-MK')}<br><br>
-          <strong>Коментар:</strong><br>
-          ${h.message.replace(/\n/g, "<br>")}
-        </div>
-      `;
+      const msg = (h.message || "").replace(/\n/g, "<br>");
+
+      html += 
+        '<div style="padding:10px; margin-bottom:10px; border-left:4px solid #2563eb; background:#f3f4f6;">' +
+          '<strong>Статус:</strong> ' + h.status + '<br>' +
+          '<strong>Корисник:</strong> ' + h.user + '<br>' +
+          '<strong>Датум:</strong> ' + new Date(h.timestamp).toLocaleString("mk-MK") + '<br><br>' +
+          '<strong>Коментар:</strong><br>' + msg +
+        '</div>';
     });
+
     container.innerHTML = html;
-  }
+  })();
 </script>
+
 
 
 	 </div>
