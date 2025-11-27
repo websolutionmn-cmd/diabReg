@@ -13,8 +13,7 @@ const bwipjs      = require('bwip-js');
 const path        = require('path');
 const { v4: uuidv4 } = require('uuid');
 const axios       = require('axios');
-const Stripe      = require('stripe');
-const stripe      = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe      = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const { loadDb, saveDb }   = require('./utils/jsonDb');
 const { logAction, readLogs } = require('./utils/logger');
@@ -28,7 +27,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'replace_with_env_secret';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const CERT_DIR   = path.join(__dirname, 'certificates');
-
 
 // Ensure dirs exist
 [PUBLIC_DIR, UPLOAD_DIR, CERT_DIR].forEach(dir => {
@@ -68,10 +66,11 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Helpers
-function getBaseUrl(req) {
-  if (process.env.BASE_URL) return process.env.BASE_URL;
-  return req.protocol + '://' + req.get('host');
+// ===== Helpers =====
+
+// фиксен base URL кон Render
+function getBaseUrl(_req) {
+  return process.env.BASE_URL || 'https://diabreg.onrender.com';
 }
 
 function createCompanyToken(company) {
@@ -105,11 +104,9 @@ function authCompany(req, res, next) {
 // Admin guard (session-based)
 function requireAdmin(req, res, next) {
   if (!req.session || !req.session.user) {
-    // Ако JSON API
     if (req.path.startsWith('/api/')) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
-    // иначе redirect кон login
     return res.redirect('/login');
   }
   next();
@@ -199,7 +196,7 @@ app.post('/api/auth/login', async (req, res) => {
 
 // ===== Applications (company side) =====
 
-// Submit application
+// Submit application (сеуште постои, но Stripe плаќањето е одделно)
 app.post('/api/apply', authCompany, upload.array('docs', 30), (req, res) => {
   const { contact, email, category, product } = req.body || {};
   if (!contact || !email || !category || !product) {
@@ -233,7 +230,7 @@ app.post('/api/apply', authCompany, upload.array('docs', 30), (req, res) => {
   res.json({ id: appDoc.id });
 });
 
-// Status check (public, token optional)
+// Status check (public)
 app.get('/api/status/:id', async (req, res) => {
   const db = loadDb();
   const appDoc = db.applications.find(a => a.id === req.params.id);
@@ -299,14 +296,13 @@ app.get('/api/documents', async (req, res) => {
 
 // ===== Admin API (JSON DB) =====
 
-// Allowed statuses by staff role
 const ROLE_STATUSES = {
   super:     ['Pending','In Process','Certifying','Completed'],
   processor: ['Pending','In Process'],
   certifier: ['Certifying','Completed']
 };
 
-// List applications for admin
+// List applications for admin (си останува за admin panel)
 app.get('/api/admin/applications', requireAdmin, (req, res) => {
   const db = loadDb();
   const role = req.session.user.role;
@@ -417,7 +413,7 @@ function generateCertNumber() {
   return 'DIAB-' +
     now.getFullYear() +
     String(now.getMonth() + 1).padStart(2, '0') +
-    String(now.getDate(), 10).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0') +
     '-' + now.getTime();
 }
 
@@ -435,7 +431,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   saveDb(db);
 
   const company = db.companies.find(c => c.id === appDoc.companyId);
-  const BASE_URL = "https://diabreg.onrender.com";
+  const baseUrl = getBaseUrl(req);
   const confirmUrl = `${baseUrl}/confirm/${encodeURIComponent(appDoc.cert_number)}`;
 
   const pdfPath = path.join(CERT_DIR, `${appDoc.cert_number}.pdf`);
@@ -446,7 +442,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   const stream = fs.createWriteStream(pdfPath);
   doc.pipe(stream);
 
-  doc.fontSize(22).text('Стандарнизирана потврда за производ', { align: 'center' });
+  doc.fontSize(22).text('Стандартизирана потврда за производ', { align: 'center' });
   doc.moveDown();
   doc.fontSize(14).text(`Компанија: ${company ? company.name : 'N/A'}`);
   doc.text(`ЕМБС: ${company ? company.matichen_broj : 'N/A'}`);
@@ -491,7 +487,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   });
 });
 
-// Public confirmation page
+// Public confirmation page + Види процес (timeline)
 app.get('/confirm/:certNumber', (req, res) => {
   const { certNumber } = req.params;
   const db = loadDb();
@@ -505,6 +501,8 @@ app.get('/confirm/:certNumber', (req, res) => {
   const validTo = new Date(issueDate);
   validTo.setFullYear(validTo.getFullYear() + 1);
 
+  const historyJson = JSON.stringify(appDoc.statusHistory || []);
+
   const html = `
     <!DOCTYPE html>
     <html lang="mk">
@@ -513,18 +511,27 @@ app.get('/confirm/:certNumber', (req, res) => {
       <title>Потврда ${certNumber}</title>
       <style>
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f3f4f6; margin:0; padding:0; }
-        .wrap { max-width:800px; margin:40px auto; background:#fff; padding:24px 32px; border-radius:12px; box-shadow:0 10px 25px rgba(15,23,42,0.12); }
+        .wrap { max-width:900px; margin:40px auto; background:#fff; padding:24px 32px; border-radius:12px; box-shadow:0 10px 25px rgba(15,23,42,0.12); }
         h1 { margin-top:0; color:#111827; }
-        .meta { margin:12px 0; color:#4b5563; line-height:1.5; }
-        a.btn {
+        .meta { margin:8px 0; color:#4b5563; line-height:1.5; }
+        .btn {
           display:inline-block; margin-top:18px; padding:10px 18px;
           border-radius:999px; border:1px solid #2563eb; color:#2563eb; text-decoration:none;
+          background:#fff; cursor:pointer;
         }
-        a.btn:hover { background:#2563eb; color:#fff; }
-        .timeline { margin-top:20px; padding-left:10px; border-left:3px solid #2563eb; }
-        .timeline-item { margin-bottom:15px; padding-left:10px; }
-        .timeline-item strong { color:#111827; }
-        .timeline-item small { color:#6b7280; }
+        .btn.primary {
+          background:#2563eb; color:#fff;
+        }
+        .btn:hover { box-shadow:0 4px 12px rgba(37,99,235,0.25); }
+        /* Modal */
+        #processModal {
+          display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55);
+          padding-top:80px; z-index:50;
+        }
+        #processModalInner {
+          background:white; max-width:640px; margin:auto; padding:20px 24px;
+          border-radius:16px; box-shadow:0 20px 45px rgba(15,23,42,0.35);
+        }
       </style>
     </head>
     <body>
@@ -536,87 +543,115 @@ app.get('/confirm/:certNumber', (req, res) => {
         <p class="meta"><strong>Категорија:</strong> ${appDoc.category || ''}</p>
         <p class="meta"><strong>Статус:</strong> ${appDoc.status}</p>
         <p class="meta"><strong>Важи до:</strong> ${validTo.toLocaleDateString('mk-MK')}</p>
-        <p class="meta"><strong>Оваа потврда е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија - СЗДСМ -(szdm.mk@gmail.com)</strong></p>
+        <p class="meta"><strong>Оваа потврда е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија - СЗДСМ (szdm.mk@gmail.com)</strong></p>
 
-        <a class="btn" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
-        <a class="btn" style="margin-left:10px;" onclick="document.getElementById('processModal').style.display='block'">
-          Види процес
-        </a>
-
-        <div id="processModal"
-             style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-                    background:rgba(0,0,0,0.5); padding-top:100px;">
-          <div style="background:white; max-width:600px; margin:auto; padding:20px;
-                      border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.25);">
-            <h2 style="margin-top:0; color:#111827;">Процес на сертификација</h2>
-            <div id="processContent" class="timeline"></div>
-            <button onclick="document.getElementById('processModal').style.display='none'"
-                    style="margin-top:15px; padding:8px 14px; border-radius:8px; border:1px solid #2563eb;
-                           background:#2563eb; color:white; cursor:pointer;">
-              Затвори
-            </button>
-          </div>
-        </div>
-
-        <script>
-          const history = ${JSON.stringify(appDoc.statusHistory || [])};
-          const container = document.getElementById('processContent');
-
-          if (!history.length) {
-            container.innerHTML = "<p>Нема внесени статуси.</p>";
-          } else {
-            container.innerHTML = history.map(h => {
-              const d = new Date(h.timestamp).toLocaleString('mk-MK');
-              return (
-                '<div class="timeline-item">' +
-                  '<strong>' + h.status + '</strong><br>' +
-                  '<small>' + d + ' – ' + h.user + '</small><br><br>' +
-                  '<div>' + (h.message || '').replace(/\\n/g,'<br>') + '</div>' +
-                '</div>'
-              );
-            }).join('');
-          }
-        </script>
+        <a class="btn primary" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
+        <button class="btn" id="openProcessBtn">Види процес</button>
       </div>
+
+      <div id="processModal">
+        <div id="processModalInner">
+          <h2 style="margin-top:0; color:#111827;">Процес на сертификација</h2>
+          <div id="processContent" style="max-height:400px; overflow-y:auto; margin-top:12px;"></div>
+          <button id="closeProcessBtn"
+                  style="margin-top:15px; padding:8px 14px; border-radius:8px; border:1px solid #2563eb;
+                         background:#2563eb; color:white; cursor:pointer;">
+            Затвори
+          </button>
+        </div>
+      </div>
+
+      <script>
+        (function(){
+          var history = ${historyJson};
+
+          var modal   = document.getElementById('processModal');
+          var openBtn = document.getElementById('openProcessBtn');
+          var closeBtn= document.getElementById('closeProcessBtn');
+          var content = document.getElementById('processContent');
+
+          openBtn.addEventListener('click', function(){
+            modal.style.display = 'block';
+          });
+          closeBtn.addEventListener('click', function(){
+            modal.style.display = 'none';
+          });
+          modal.addEventListener('click', function(ev){
+            if (ev.target === modal) {
+              modal.style.display = 'none';
+            }
+          });
+
+          if (!history || !history.length) {
+            content.innerHTML = '<p>Нема внесени статуси.</p>';
+            return;
+          }
+
+          var html = '';
+          for (var i=0; i<history.length; i++) {
+            var h = history[i];
+            var dt = h.timestamp ? new Date(h.timestamp).toLocaleString('mk-MK') : '';
+            html += '' +
+              '<div style="display:flex; gap:12px; margin-bottom:16px;">' +
+                '<div style="width:14px; display:flex; flex-direction:column; align-items:center;">' +
+                  '<div style="width:10px;height:10px;border-radius:999px;background:#2563eb;"></div>' +
+                  (i < history.length-1
+                    ? '<div style="flex:1;width:2px;background:#cbd5f5;margin-top:2px;"></div>'
+                    : ''
+                  ) +
+                '</div>' +
+                '<div style="flex:1; padding:10px 12px; border-radius:8px; background:#f3f4f6;">' +
+                  '<div style="font-weight:600; color:#111827;">Статус: ' + (h.status || '') + '</div>' +
+                  '<div style="font-size:12px; color:#4b5563; margin-top:2px;">' +
+                    (dt || '') + (h.user ? ' · ' + h.user : '') +
+                  '</div>' +
+                  '<div style="font-size:13px; color:#111827; margin-top:6px; white-space:pre-wrap;">' +
+                    (h.message || '') +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+          }
+          content.innerHTML = html;
+        })();
+      </script>
     </body>
     </html>
   `;
   res.send(html);
 });
 
-// ===== Stripe payments (card) =====
+// ===== Stripe payments (варијанта A, MKD → EUR) =====
 
-// Map категорија -> износ во евро-центи
-const PRICE_MAP = {
-  'Додатоци и потрошен материјал':             45_00,
-  'Потрошен материјал за мерење/инјектирање':  65_00,
-  'Уреди за мерење':                           125_00,
-  'Уреди за апликација на инсулин':            170_00,
-  'Автоматизирани системи':                    260_00
+// Цени во МКД според категориите во index.html
+const CATEGORY_PRICES_MKD = {
+  'Додатоци и потрошен материјал': 2500,
+  'Потрошен материјал за мерење/инјектирање': 4000,
+  'Уреди за мерење': 7500,
+  'Уреди за апликација на инсулин': 10000,
+  'Автоматизирани системи': 15000
 };
 
-// Креира Checkout Session за дадена апликација
-app.post('/api/pay/checkout-session', authCompany, express.json(), async (req, res) => {
+// едноставна конверзија MKD → EUR cents (приближно)
+function mkdToEurCents(mkd) {
+  const rate = 61.5; // 1 EUR ≈ 61.5 MKD (пример)
+  const eur = mkd / rate;
+  return Math.round(eur * 100);
+}
+
+// Користиме ИСТАТА рута како претходно Payoneer: /api/payment/session
+// Frontend: праќа { category } и добива { url } за Stripe Checkout
+app.post('/api/payment/session', authCompany, async (req, res) => {
   try {
-    const { applicationId } = req.body || {};
-    if (!applicationId) {
-      return res.status(400).json({ error: 'Недостасува ID на апликација.' });
+    const { category } = req.body || {};
+    const mkd = CATEGORY_PRICES_MKD[category];
+
+    if (!category || !mkd) {
+      return res.status(400).json({ error: 'Невалидна категорија' });
     }
 
-    const db = loadDb();
-    const appDoc = db.applications.find(a => a.id === applicationId);
-    if (!appDoc) {
-      return res.status(404).json({ error: 'Апликацијата не постои.' });
-    }
+    const amountEurCents = mkdToEurCents(mkd);
 
-    if (appDoc.companyId !== req.company.companyId) {
-      return res.status(403).json({ error: 'Немате пристап до оваа апликација.' });
-    }
-
-    const amountCents = PRICE_MAP[appDoc.category];
-    if (!amountCents) {
-      return res.status(400).json({ error: 'Невалидна категорија за наплата.' });
-    }
+    const baseUrl = getBaseUrl(req);
 
     const sessionStripe = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -625,69 +660,34 @@ app.post('/api/pay/checkout-session', authCompany, express.json(), async (req, r
         {
           price_data: {
             currency: 'eur',
-            unit_amount: amountCents,
+            unit_amount: amountEurCents,
             product_data: {
-              name: appDoc.product || 'DIAB-REG сертификација',
-              description: appDoc.category || 'Категорија'
+              name: 'DIAB-REG сертификат',
+              description: `Категорија: ${category} (цената е дефинирана во МКД во DIAB-REG системот)`
             }
           },
           quantity: 1
         }
       ],
       metadata: {
-        applicationId: appDoc.id,
-        companyId: appDoc.companyId
+        diabreg_category: category,
+        diabreg_mkd_price: String(mkd),
+        diabreg_companyId: req.company.companyId,
+        diabreg_companyName: req.company.name || ''
       },
-      success_url: `${getBaseUrl(req)}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${getBaseUrl(req)}/payment-cancel.html`
+      success_url: `${baseUrl}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/payment-cancel.html`
     });
 
-    return res.json({ url: sessionStripe.url });
-  } catch (err) {
-    console.error('Stripe checkout error:', err);
-    return res.status(500).json({ error: 'Грешка при креирање Stripe сесија.' });
+    res.json({ id: sessionStripe.id, url: sessionStripe.url });
+  } catch (e) {
+    console.error('Stripe session error', e);
+    res.status(500).json({ error: 'Не може да се отвори плаќање' });
   }
 });
 
-// Callback за да се потврди плаќањето и да се маркира во базата
-app.get('/api/pay/confirm', async (req, res) => {
-  try {
-    const sessionId = req.query.session_id;
-    if (!sessionId) {
-      return res.status(400).json({ success: false, error: 'Недостасува session_id.' });
-    }
+// ===== PUBLIC: Completed certificates (no auth, за "Потврдени производи") =====
 
-    const sessionStripe = await stripe.checkout.sessions.retrieve(sessionId);
-    if (!sessionStripe || sessionStripe.payment_status !== 'paid') {
-      return res.status(400).json({ success: false, error: 'Плаќањето не е успешно.' });
-    }
-
-    const appId = sessionStripe.metadata && sessionStripe.metadata.applicationId;
-    if (!appId) {
-      return res.status(400).json({ success: false, error: 'Недостасува applicationId во metadata.' });
-    }
-
-    const db = loadDb();
-    const appDoc = db.applications.find(a => a.id === appId);
-    if (!appDoc) {
-      return res.status(404).json({ success: false, error: 'Апликацијата не постои.' });
-    }
-
-    appDoc.paymentStatus     = 'Paid';
-    appDoc.paymentSessionId  = sessionStripe.id;
-    appDoc.paymentAmount     = sessionStripe.amount_total;
-    appDoc.paymentCurrency   = sessionStripe.currency;
-    appDoc.updatedAt         = new Date().toISOString();
-    saveDb(db);
-
-    return res.json({ success: true, applicationId: appDoc.id });
-  } catch (err) {
-    console.error('Stripe confirm error:', err);
-    return res.status(500).json({ success: false, error: 'Внатрешна грешка при потврда.' });
-  }
-});
-
-// ===== PUBLIC: Completed certificates (no auth) =====
 app.get('/api/public/completed', (req, res) => {
   const db = loadDb();
 
