@@ -651,36 +651,40 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
       return;
     }
 
-    const apps = await res.json();
-
+    const json = await res.json();
+    const apps = json.items || [];
 
     const tb = certified.querySelector('tbody');
+
     tb.innerHTML = apps.map(a => {
       const createdAt = a.createdAt ? new Date(a.createdAt).toLocaleString('mk-MK') : '';
-      const companyName = a.company && a.company.name ? a.company.name : '';
-      const certLink = a.cert_number
-        ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(a.cert_number)}" target="_blank">${a.cert_number}</a>`
-        : '';
+      const companyName = a.company?.name || '';
       const contact = a.contact || '';
       const email = a.email || '';
       const status = a.status || '';
+      const certLink = a.cert_number
+        ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(a.cert_number)}" target="_blank">${a.cert_number}</a>`
+        : '';
 
-      return `<tr class="hover:bg-slate-50">
-        <td class="px-3 py-2">${a._id || ''}</td>
-        <td class="px-3 py-2">${createdAt}</td>
-        <td class="px-3 py-2">${companyName}</td>
-        <td class="px-3 py-2">${a.product || ''}</td>
-        <td class="px-3 py-2">${contact}</td>
-        <td class="px-3 py-2">${email}</td>
-        <td class="px-3 py-2">${status}</td>
-        <td class="px-3 py-2">${certLink}</td>
-      </tr>`;
+      return `
+        <tr class="hover:bg-slate-50">
+          <td class="px-3 py-2">${a._id}</td>
+          <td class="px-3 py-2">${createdAt}</td>
+          <td class="px-3 py-2">${companyName}</td>
+          <td class="px-3 py-2">${a.product}</td>
+          <td class="px-3 py-2">${contact}</td>
+          <td class="px-3 py-2">${email}</td>
+          <td class="px-3 py-2">${status}</td>
+          <td class="px-3 py-2">${certLink}</td>
+        </tr>
+      `;
     }).join('');
   } catch (err) {
     console.error('Error loading completed applications', err);
     alert('Грешка при вчитување');
   }
 });
+
 
 // Документи и регулативи
   document.querySelectorAll('#btnDocs').forEach(el=>{
