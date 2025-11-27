@@ -633,11 +633,8 @@
     initial.classList.add('hidden');
     certified.classList.remove('hidden');
 
-    const res = await fetch('/api/admin/applications', {
-    headers: {
-        "Authorization": "Bearer " + token
-    }
-});
+const res = await fetch('/api/public/completed');
+
 
     if (!res.ok) return alert('Грешка при вчитување');
 
