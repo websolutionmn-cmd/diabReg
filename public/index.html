@@ -786,23 +786,49 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
   });
 
   // Поднеси апликација
+    // Поднеси апликација + Stripe плаќање
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!token) return alert('Мора да се најавиш');
     if (!acceptTerms.checked) return alert('Мора да ги прифатите условите');
 
-    const fd = new FormData(form);
-    const applyRes  = await fetch('/api/apply', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
-      body: fd
-    });
-    const applyJson = await applyRes.json();
-    if (!applyJson.id) {
-      return alert('Грешка при поднесување: ' + (applyJson.error||''));
+    try {
+      // 1) Прво ја креираме апликацијата (со документи)
+      const fd = new FormData(form);
+      const applyRes  = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: fd
+      });
+      const applyJson = await applyRes.json();
+      if (!applyRes.ok || !applyJson.id) {
+        return alert('Грешка при поднесување: ' + (applyJson.error || ''));
+      }
+
+      // 2) Потоа стартуваме Stripe Checkout за таа апликација
+      const payRes = await fetch('/api/pay/checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ applicationId: applyJson.id })
+      });
+      const payJson = await payRes.json();
+
+      if (!payRes.ok || !payJson.url) {
+        alert('Апликацијата е поднесена (ID: ' + applyJson.id + '), но не може да се отвори страница за плаќање. Ве молиме контактирајте нè.');
+        return;
+      }
+
+      // 3) Редирект кон Stripe страница за плаќање
+      window.location = payJson.url;
+    } catch (err) {
+      console.error(err);
+      alert('Непредвидена грешка при поднесување или плаќање.');
     }
-    alert('Апликацијата е поднесена! Вашето ID е ' + applyJson.id);
   });
+
 
   // Проверка статус
   document.getElementById('checkBtn').addEventListener('click', async () => {
