@@ -435,7 +435,7 @@ app.get('/api/certificate/pdf/:id', requireAdmin, async (req, res) => {
   saveDb(db);
 
   const company = db.companies.find(c => c.id === appDoc.companyId);
-  const baseUrl = getBaseUrl(req);
+  const BASE_URL = "https://diabreg.onrender.com";
   const confirmUrl = `${baseUrl}/confirm/${encodeURIComponent(appDoc.cert_number)}`;
 
   const pdfPath = path.join(CERT_DIR, `${appDoc.cert_number}.pdf`);
