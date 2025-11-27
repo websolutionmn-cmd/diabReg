@@ -71,17 +71,27 @@
         Поддржано од:
       </p>
       <div class="flex flex-wrap justify-center items-center gap-6">
-        <img
-          class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBMbxYIyarbBG_HV1F3IABrK05X1i3zJHUA&s"
-          alt="Лого 1"
-        >
-        <img
-          class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow"
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1cPOdSQDz5IeQzb7-284mp2ndLup06Ks6Cw&s"
-          alt="Лого 2"
-        >
-      </div>
+
+  <!-- SZDM → diabetes.com.mk -->
+  <a href="https://diabetes.com.mk" target="_blank">
+    <img
+      class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow transition hover:scale-105"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbBMbxYIyarbBG_HV1F3IABrK05X1i3zJHUA&s"
+      alt="Сојуз на дијабетичари"
+    >
+  </a>
+
+  <!-- IDF → idf.org -->
+  <a href="https://idf.org" target="_blank">
+    <img
+      class="h-10 md:h-12 object-contain bg-white/90 px-3 py-2 rounded-xl shadow transition hover:scale-105"
+      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1cPOdSQDz5IeQzb7-284mp2ndLup06Ks6Cw&s"
+      alt="IDF"
+    >
+  </a>
+
+</div>
+
     </div>
   </div>
 
@@ -628,63 +638,55 @@
     initial.classList.remove('hidden');
   };
 
-  // Сертифицирани од DIAB-REG
-  document.getElementById('btnCertified').addEventListener('click', async ()=>{
-    initial.classList.add('hidden');
-    certified.classList.remove('hidden');
+// Сертифицирани од DIAB-REG
+document.getElementById('btnCertified').addEventListener('click', async () => {
+  initial.classList.add('hidden');
+  certified.classList.remove('hidden');
 
-const res = await fetch('/api/public/completed');
+  try {
+    const res = await fetch('/api/public/completed');
+    if (!res.ok) {
+      console.error('Failed to load completed applications', res.status);
+      alert('Грешка при вчитување');
+      return;
+    }
 
-
-    if (!res.ok) return alert('Грешка при вчитување');
-
-    const data = await res.json();
-const apps = data.items;
+    const json = await res.json();
+    const apps = json.items || [];
 
     const tb = certified.querySelector('tbody');
-    tb.innerHTML = apps.map(a=>{
-      const d = new Date(a.createdAt).toLocaleString('mk-MK');
-      return `<tr class="hover:bg-slate-50">
-        <td class="px-3 py-2">${a._id}</td>
-        <td class="px-3 py-2">${d}</td>
-        <td class="px-3 py-2">${a.company.name}</td>
-        <td class="px-3 py-2">${a.product}</td>
-        <td class="px-3 py-2">${a.contact}</td>
-        <td class="px-3 py-2">${a.email}</td>
-        <td class="px-3 py-2">${a.status}</td>
-        <td class="px-3 py-2">
-  <a class="text-sky-700 underline" 
-     href="/confirm/${encodeURIComponent(a.cert_number)}" 
-     target="_blank">
-    ${a.cert_number}
-  </a>
-</td>
 
-      </tr>`;
+    tb.innerHTML = apps.map(a => {
+      const createdAt = a.createdAt ? new Date(a.createdAt).toLocaleString('mk-MK') : '';
+      const companyName = a.company?.name || '';
+      const contact = a.contact || '';
+      const email = a.email || '';
+      const status = a.status || '';
+      const certLink = a.cert_number
+        ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(a.cert_number)}" target="_blank">${a.cert_number}</a>`
+        : '';
+
+      return `
+        <tr class="hover:bg-slate-50">
+          <td class="px-3 py-2">${a._id}</td>
+          <td class="px-3 py-2">${createdAt}</td>
+          <td class="px-3 py-2">${companyName}</td>
+          <td class="px-3 py-2">${a.product}</td>
+          <td class="px-3 py-2">${contact}</td>
+          <td class="px-3 py-2">${email}</td>
+          <td class="px-3 py-2">${status}</td>
+          <td class="px-3 py-2">${certLink}</td>
+        </tr>
+      `;
     }).join('');
-  });
-
-  function applyCertFilters(){
-    const f={
-      id:      document.getElementById('filterIdCert').value.toLowerCase(),
-      date:    document.getElementById('filterDateCert').value.toLowerCase(),
-      company: document.getElementById('filterCompanyCert').value.toLowerCase(),
-      product: document.getElementById('filterProductCert').value.toLowerCase()
-    };
-    certified.querySelectorAll('tbody tr').forEach(r=>{
-      const c = Array.from(r.cells).map(td=>td.textContent.toLowerCase());
-      const ok =
-        (!f.id      || c[0].includes(f.id)) &&
-        (!f.date    || c[1].includes(f.date)) &&
-        (!f.company || c[2].includes(f.company)) &&
-        (!f.product || c[3].includes(f.product));
-      r.style.display = ok ? '' : 'none';
-    });
+  } catch (err) {
+    console.error('Error loading completed applications', err);
+    alert('Грешка при вчитување');
   }
-  ['filterIdCert','filterDateCert','filterCompanyCert','filterProductCert']
-    .forEach(id=>document.getElementById(id).addEventListener('input',applyCertFilters));
+});
 
-  // Документи и регулативи
+
+// Документи и регулативи
   document.querySelectorAll('#btnDocs').forEach(el=>{
     el.addEventListener('click', async () => {
       try {
@@ -788,23 +790,49 @@ const apps = data.items;
   });
 
   // Поднеси апликација
+    // Поднеси апликација + Stripe плаќање
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!token) return alert('Мора да се најавиш');
     if (!acceptTerms.checked) return alert('Мора да ги прифатите условите');
 
-    const fd = new FormData(form);
-    const applyRes  = await fetch('/api/apply', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + token },
-      body: fd
-    });
-    const applyJson = await applyRes.json();
-    if (!applyJson.id) {
-      return alert('Грешка при поднесување: ' + (applyJson.error||''));
+    try {
+      // 1) Прво ја креираме апликацијата (со документи)
+      const fd = new FormData(form);
+      const applyRes  = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: fd
+      });
+      const applyJson = await applyRes.json();
+      if (!applyRes.ok || !applyJson.id) {
+        return alert('Грешка при поднесување: ' + (applyJson.error || ''));
+      }
+
+      // 2) Потоа стартуваме Stripe Checkout за таа апликација
+      const payRes = await fetch('/api/payment/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ applicationId: applyJson.id })
+      });
+      const payJson = await payRes.json();
+
+      if (!payRes.ok || !payJson.url) {
+        alert('Апликацијата е поднесена (ID: ' + applyJson.id + '), но не може да се отвори страница за плаќање. Ве молиме контактирајте нè.');
+        return;
+      }
+
+      // 3) Редирект кон Stripe страница за плаќање
+      window.location = payJson.url;
+    } catch (err) {
+      console.error(err);
+      alert('Непредвидена грешка при поднесување или плаќање.');
     }
-    alert('Апликацијата е поднесена! Вашето ID е ' + applyJson.id);
   });
+
 
   // Проверка статус
   document.getElementById('checkBtn').addEventListener('click', async () => {
