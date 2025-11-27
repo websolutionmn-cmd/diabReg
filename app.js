@@ -539,7 +539,53 @@ app.get('/confirm/:certNumber', (req, res) => {
         <p class="meta"><strong>Важи до:</strong> ${validTo.toLocaleDateString('mk-MK')}</p>
         <p class="meta"><strong>Оваа потврда е издадена од Сојуз на Здруженија на Дијабетичари на Северна Македонија - СЗДСМ -(szdm.mk@gmail.com) </strong> </p>
 		<a class="btn" href="${pdfUrl}" target="_blank">Отвори PDF потврда</a>
+     <a class="btn" style="margin-left:10px;" onclick="document.getElementById('processModal').style.display='block'">
+  Види процес
+</a>
+
+<!-- Modal прозорец -->
+<div id="processModal" 
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(0,0,0,0.5); padding-top:100px;">
+
+  <div style="background:white; max-width:600px; margin:auto; padding:20px; 
+              border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.25);">
+
+    <h2 style="margin-top:0; color:#111827;">Процес на сертификација</h2>
+
+    <div id="processContent" style="max-height:400px; overflow-y:auto; line-height:1.5;">
+      <!-- JS го пополнува процесот -->
+    </div>
+
+    <button onclick="document.getElementById('processModal').style.display='none'"
+            style="margin-top:15px; padding:8px 14px; border-radius:8px; border:1px solid #2563eb;
+                   background:#2563eb; color:white; cursor:pointer;">
+      Затвори
+    </button>
+
+  </div>
+</div>
+
+<script>
+  // Inject статус историја
+  const history = ${JSON.stringify(appDoc.statusHistory || [])};
+
+  const container = document.getElementById('processContent');
+  if (history.length === 0) {
+    container.innerHTML = "<p>Нема внесени статуси.</p>";
+  } else {
+    container.innerHTML = history.map(h => `
+      <div style="padding:10px; margin-bottom:10px; border-left:4px solid #2563eb; background:#f3f4f6;">
+        <strong>Статус:</strong> ${h.status} <br>
+        <strong>Корисник:</strong> ${h.user} <br>
+        <strong>Датум:</strong> ${new Date(h.timestamp).toLocaleString('mk-MK')} <br><br>
+        <strong>Коментар:</strong><br> ${h.message}
       </div>
+    `).join('');
+  }
+</script>
+
+	 </div>
     </body>
     </html>
   `;
