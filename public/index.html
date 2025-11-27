@@ -39,9 +39,9 @@
   <select id="langSelect"
     class="bg-white text-slate-800 ml-2 px-3 py-2 rounded-lg shadow-md text-sm font-medium border border-slate-300
            focus:outline-none focus:ring-2 focus:ring-sky-400">
-    <option value="http://localhost:3000/" selected>Македонски</option>
-    <option value="http://localhost:3000/en.html">English</option>
-    <option value="http://localhost:3000/al.html">Shqip</option>
+    <option value="http://diabreg.onrender.com/" selected>Македонски</option>
+    <option value="http://diabreg.onrender.com/en.html">English</option>
+    <option value="http://diabreg.onrender.com/al.html">Shqip</option>
   </select>
 
 </div>
@@ -628,57 +628,51 @@
     initial.classList.remove('hidden');
   };
 
-  // Сертифицирани од DIAB-REG
-  document.getElementById('btnCertified').addEventListener('click', async ()=>{
-    initial.classList.add('hidden');
-    certified.classList.remove('hidden');
+// Сертифицирани од DIAB-REG
+document.getElementById('btnCertified').addEventListener('click', async () => {
+  initial.classList.add('hidden');
+  certified.classList.remove('hidden');
 
-    const res = await fetch('/api/admin/applications', {
-    headers: {
-        "Authorization": "Bearer " + token
+  try {
+    const res = await fetch('/api/public/completed');
+    if (!res.ok) {
+      console.error('Failed to load completed applications', res.status);
+      alert('Грешка при вчитување');
+      return;
     }
-});
 
-    if (!res.ok) return alert('Грешка при вчитување');
+    const data = await res.json();
+    const apps = Array.isArray(data.items) ? data.items : [];
 
-    const apps = (await res.json()).filter(x=>x.status==='Completed');
     const tb = certified.querySelector('tbody');
-    tb.innerHTML = apps.map(a=>{
-      const d = new Date(a.createdAt).toLocaleString('mk-MK');
+    tb.innerHTML = apps.map(a => {
+      const createdAt = a.createdAt ? new Date(a.createdAt).toLocaleString('mk-MK') : '';
+      const companyName = a.company && a.company.name ? a.company.name : '';
+      const certLink = a.cert_number
+        ? `<a class="text-sky-700 underline" href="/confirm/${encodeURIComponent(a.cert_number)}" target="_blank">${a.cert_number}</a>`
+        : '';
+      const contact = a.contact || '';
+      const email = a.email || '';
+      const status = a.status || '';
+
       return `<tr class="hover:bg-slate-50">
-        <td class="px-3 py-2">${a._id}</td>
-        <td class="px-3 py-2">${d}</td>
-        <td class="px-3 py-2">${a.company.name}</td>
-        <td class="px-3 py-2">${a.product}</td>
-        <td class="px-3 py-2">${a.contact}</td>
-        <td class="px-3 py-2">${a.email}</td>
-        <td class="px-3 py-2">${a.status}</td>
-        <td class="px-3 py-2">${a.cert_number||''}</td>
+        <td class="px-3 py-2">${a._id || ''}</td>
+        <td class="px-3 py-2">${createdAt}</td>
+        <td class="px-3 py-2">${companyName}</td>
+        <td class="px-3 py-2">${a.product || ''}</td>
+        <td class="px-3 py-2">${contact}</td>
+        <td class="px-3 py-2">${email}</td>
+        <td class="px-3 py-2">${status}</td>
+        <td class="px-3 py-2">${certLink}</td>
       </tr>`;
     }).join('');
-  });
-
-  function applyCertFilters(){
-    const f={
-      id:      document.getElementById('filterIdCert').value.toLowerCase(),
-      date:    document.getElementById('filterDateCert').value.toLowerCase(),
-      company: document.getElementById('filterCompanyCert').value.toLowerCase(),
-      product: document.getElementById('filterProductCert').value.toLowerCase()
-    };
-    certified.querySelectorAll('tbody tr').forEach(r=>{
-      const c = Array.from(r.cells).map(td=>td.textContent.toLowerCase());
-      const ok =
-        (!f.id      || c[0].includes(f.id)) &&
-        (!f.date    || c[1].includes(f.date)) &&
-        (!f.company || c[2].includes(f.company)) &&
-        (!f.product || c[3].includes(f.product));
-      r.style.display = ok ? '' : 'none';
-    });
+  } catch (err) {
+    console.error('Error loading completed applications', err);
+    alert('Грешка при вчитување');
   }
-  ['filterIdCert','filterDateCert','filterCompanyCert','filterProductCert']
-    .forEach(id=>document.getElementById(id).addEventListener('input',applyCertFilters));
+});
 
-  // Документи и регулативи
+// Документи и регулативи
   document.querySelectorAll('#btnDocs').forEach(el=>{
     el.addEventListener('click', async () => {
       try {
