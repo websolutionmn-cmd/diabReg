@@ -25,7 +25,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'replace_with_env_secret';
 // Directories
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
-const CERT_DIR   = path.join(PUBLIC_DIR, 'certificates');
+const CERT_DIR = path.join(__dirname, 'certificates');
+
 
 // Ensure dirs exist
 [PUBLIC_DIR, UPLOAD_DIR, CERT_DIR].forEach(dir => {
