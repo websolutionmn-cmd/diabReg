@@ -17,14 +17,11 @@
   <!-- (опционално) твојот стар external /styles.css ако ти треба за нешто друго -->
   <!-- <link rel="stylesheet" href="/styles.css"/> -->
 </head>
-<body class="bg-slate-100 text-slate-900">
-
-
 <!-- POPUP OVERLAY (BLOCKS PAGE UNTIL ACCEPTED) -->
 <div id="welcomePopup"
      class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99999] hidden">
 
-  <div class="bg-white max-w-2xl w-[90%] rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-200 relative">
+  <div class="bg-white max-w-2xl w-[90%] max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-200 relative">
 
     <!-- LOGO -->
     <div class="flex justify-center mb-4">
@@ -81,7 +78,7 @@
     </div>
   </div>
 </div>
-
+<body class="bg-slate-100 text-slate-900">
 
 <div id="pageWrapper" class="min-h-screen flex flex-col hidden">
 
@@ -937,7 +934,35 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
   });
   
   // =====================
-// POPUP APPEAR EVERY 10 VISITS
+
+// NEW POPUP LOGIC
+window.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('welcomePopup');
+  const agree = document.getElementById('agreeTerms');
+  const closeBtn = document.getElementById('closePopupBtn');
+  const page = document.getElementById('pageWrapper');
+
+  // Always show popup
+  popup.classList.remove('hidden');
+  document.body.style.overflow = "hidden";
+
+  // Enable "OK" button only after checkbox
+  agree.addEventListener('change', () => {
+    const ok = agree.checked;
+    closeBtn.disabled = !ok;
+    closeBtn.classList.toggle('cursor-not-allowed', !ok);
+    closeBtn.classList.toggle('bg-slate-300', !ok);
+    closeBtn.classList.toggle('bg-cyan-700', ok);
+  });
+
+  // Close popup
+  closeBtn.addEventListener('click', () => {
+    popup.classList.add('hidden');
+    document.body.style.overflow = "auto";
+    if (page) page.classList.remove('hidden');
+  });
+});
+
 // =====================
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -950,15 +975,10 @@ window.addEventListener('DOMContentLoaded', () => {
   visits = visits ? parseInt(visits) + 1 : 1;
   localStorage.setItem('diabreg_visits', visits);
 
-  // Show popup on first visit and then on every 10th visit
-  const page = document.getElementById('pageWrapper');
-
-  if (visits === 1 || visits % 10 === 0) {
+  // Show popup only on every 10th visit
+  if (visits % 10 === 0) {
     popup.classList.remove('hidden');
     document.body.style.overflow = "hidden"; // block scrolling
-  } else if (page) {
-    // If popup is not shown, show the page content immediately
-    page.classList.remove('hidden');
   }
 
   // Enable button after checkbox
@@ -973,8 +993,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Close popup & unlock page
   closeBtn.addEventListener('click', () => {
     popup.classList.add('hidden');
-    document.body.style.overflow = "auto";
-    if (page) page.classList.remove('hidden');
+    document.body.style.overflow = "auto"; 
   });
 });
 
