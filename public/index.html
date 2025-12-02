@@ -945,22 +945,29 @@ window.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('welcomePopup');
   const agree = document.getElementById('agreeTerms');
   const closeBtn = document.getElementById('closePopupBtn');
-
-  // Count visits in localStorage
-  let visits = localStorage.getItem('diabreg_visits');
-  visits = visits ? parseInt(visits) + 1 : 1;
-  localStorage.setItem('diabreg_visits', visits);
-
-  // Show popup on first visit and then on every 10th visit
   const page = document.getElementById('pageWrapper');
 
-  if (visits === 1 || visits % 10 === 0) {
-    popup.classList.remove('hidden');
-    document.body.style.overflow = "hidden"; // block scrolling
-  } else if (page) {
-    // If popup is not shown, show the page content immediately
-    page.classList.remove('hidden');
-  }
+  // Секогаш прикажи поп-ап
+  popup.classList.remove('hidden');
+  document.body.style.overflow = "hidden";
+
+  // Овозможи копче кога ќе се селектира чекбокс
+  agree.addEventListener('change', () => {
+    const ok = agree.checked;
+    closeBtn.disabled = !ok;
+    closeBtn.classList.toggle('cursor-not-allowed', !ok);
+    closeBtn.classList.toggle('bg-slate-300', !ok);
+    closeBtn.classList.toggle('bg-cyan-700', ok);
+  });
+
+  // Кога се клика „Во ред“
+  closeBtn.addEventListener('click', () => {
+    popup.classList.add('hidden');
+    document.body.style.overflow = "auto";
+    if (page) page.classList.remove('hidden');
+  });
+});
+
 
   // Enable button after checkbox
   agree.addEventListener('change', () => {
