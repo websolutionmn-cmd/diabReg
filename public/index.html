@@ -871,7 +871,105 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
       });
     }
   });
+  
+  // =====================
+// POPUP APPEAR EVERY 10 VISITS
+// =====================
+
+window.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('welcomePopup');
+  const agree = document.getElementById('agreeTerms');
+  const closeBtn = document.getElementById('closePopupBtn');
+
+  // Count visits in localStorage
+  let visits = localStorage.getItem('diabreg_visits');
+  visits = visits ? parseInt(visits) + 1 : 1;
+  localStorage.setItem('diabreg_visits', visits);
+
+  // Show popup only on every 10th visit
+  if (visits % 10 === 0) {
+    popup.classList.remove('hidden');
+    document.body.style.overflow = "hidden"; // block scrolling
+  }
+
+  // Enable button after checkbox
+  agree.addEventListener('change', () => {
+    const ok = agree.checked;
+    closeBtn.disabled = !ok;
+    closeBtn.classList.toggle('cursor-not-allowed', !ok);
+    closeBtn.classList.toggle('bg-slate-300', !ok);
+    closeBtn.classList.toggle('bg-cyan-700', ok);
+  });
+
+  // Close popup & unlock page
+  closeBtn.addEventListener('click', () => {
+    popup.classList.add('hidden');
+    document.body.style.overflow = "auto"; 
+  });
+});
+
 </script>
+<!-- POPUP OVERLAY (BLOCKS PAGE UNTIL ACCEPTED) -->
+<div id="welcomePopup"
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99999] hidden">
+
+  <div class="bg-white max-w-2xl w-[90%] rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-200 relative">
+
+    <!-- LOGO -->
+    <div class="flex justify-center mb-4">
+      <img src="/logo.jpg" alt="DIAB-REG Logo"
+           class="h-20 w-auto rounded-xl shadow-md bg-white p-1">
+    </div>
+
+    <h2 class="text-2xl font-bold text-slate-800 mb-4 text-center">
+      Добредојдовте во DIAB-REG
+    </h2>
+
+    <div id="popupContent" class="text-slate-700 leading-relaxed">
+
+      <p class="mb-4">
+        Денес, речиси секој производ може лесно да биде регистриран како производ наменет за дијабетичари.
+        Студиите што се доставуваат до МАЛМЕД често не ги одразуваат нашите локални услови — начинот на исхрана,
+        динамиката на живот, навиките за спиење и секојдневието на лицата со дијабетес во Северна Македонија.
+      </p>
+
+      <p class="mb-4">
+        DIAB-REG е национална платформа за стандардизација и проверка на производи наменети за дијабетичари,
+        која се спроведува од страна на Сојузот на здруженија на дијабетичари во соработка со тим од специјалисти ендокринолози.
+      </p>
+
+      <h3 class="font-semibold text-slate-900 mt-6 mb-2">Упатство за компании</h3>
+
+      <ul class="list-disc ml-5 space-y-1 text-sm">
+        <li>Регистрирајте кориснички профил</li>
+        <li>Најавете се во системот</li>
+        <li>Креирајте апликација за производ</li>
+        <li>Апликацијата ја разгледува Сојузот и тим од ендокринолози</li>
+        <li>Можно е да бидете контактирани за примероци и тестирања</li>
+        <li>Проценката трае од 1 до 4 недели</li>
+        <li>По уплата и одобрување, производот се појавува во „Потврдени”</li>
+      </ul>
+
+      <p class="text-slate-700 text-sm mt-4">
+        Контакт: <strong>+389 78 395 246</strong>
+      </p>
+
+      <div class="flex items-center gap-2 mt-6">
+        <input type="checkbox" id="agreeTerms"
+               class="h-4 w-4 text-cyan-700 rounded border-slate-300">
+        <label for="agreeTerms" class="text-sm text-slate-700">
+          Се согласувам со условите
+        </label>
+      </div>
+
+      <button id="closePopupBtn"
+              disabled
+              class="mt-6 w-full py-3 rounded-xl bg-slate-300 text-white font-semibold cursor-not-allowed transition">
+        Во ред
+      </button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
