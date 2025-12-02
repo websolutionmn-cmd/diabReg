@@ -6,7 +6,35 @@
   <title>DIAB-REG Application</title>
 
   <!-- TailwindCSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">
+// NEW ALWAYS-SHOW POPUP (OPTION C)
+window.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('welcomePopup');
+  const agree = document.getElementById('agreeTerms');
+  const closeBtn = document.getElementById('closePopupBtn');
+  const page = document.getElementById('pageWrapper');
+
+  // Always show, blur background
+  popup.classList.remove('hidden');
+  page.style.filter = "blur(3px)";
+  page.style.pointerEvents = "none";
+
+  agree.addEventListener('change', () => {
+    const ok = agree.checked;
+    closeBtn.disabled = !ok;
+    closeBtn.classList.toggle('cursor-not-allowed', !ok);
+    closeBtn.classList.toggle('bg-slate-300', !ok);
+    closeBtn.classList.toggle('bg-cyan-700', ok);
+  });
+
+  closeBtn.addEventListener('click', () => {
+    popup.classList.add('hidden');
+    page.style.filter = "none";
+    page.style.pointerEvents = "auto";
+  });
+});
+
+</script>
 
   <style>
     body {
@@ -18,10 +46,9 @@
   <!-- <link rel="stylesheet" href="/styles.css"/> -->
 </head>
 <!-- POPUP OVERLAY (BLOCKS PAGE UNTIL ACCEPTED) -->
-<div id="welcomePopup"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99999] hidden">
+<div id="welcomePopup" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] hidden">
 
-  <div class="bg-white max-w-2xl w-[90%] max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-200 relative">
+  <div class="bg-white max-w-2xl w-[90%] max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl p-6 md:p-8 border border-slate-200">
 
     <!-- LOGO -->
     <div class="flex justify-center mb-4">
@@ -30,7 +57,7 @@
     </div>
 
     <h2 class="text-2xl font-bold text-slate-800 mb-4 text-center">
-      Добредојдовте во<BR> DIAB-REG
+      Добредојдовте во DIAB-REG
     </h2>
 
     <div id="popupContent" class="text-slate-700 leading-relaxed">
@@ -80,7 +107,7 @@
 </div>
 <body class="bg-slate-100 text-slate-900">
 
-<div id="pageWrapper" class="min-h-screen flex flex-col hidden">
+<div id="pageWrapper" class="min-h-screen flex flex-col">
 
   <!-- ================= HEADER ================= -->
   <!-- ================= HEADER ================= -->
@@ -933,37 +960,7 @@ document.getElementById('btnCertified').addEventListener('click', async () => {
     }
   });
   
-  // =====================
-
-// NEW POPUP LOGIC
-window.addEventListener('DOMContentLoaded', () => {
-  const popup = document.getElementById('welcomePopup');
-  const agree = document.getElementById('agreeTerms');
-  const closeBtn = document.getElementById('closePopupBtn');
-  const page = document.getElementById('pageWrapper');
-
-  // Always show popup
-  popup.classList.remove('hidden');
-  document.body.style.overflow = "hidden";
-
-  // Enable "OK" button only after checkbox
-  agree.addEventListener('change', () => {
-    const ok = agree.checked;
-    closeBtn.disabled = !ok;
-    closeBtn.classList.toggle('cursor-not-allowed', !ok);
-    closeBtn.classList.toggle('bg-slate-300', !ok);
-    closeBtn.classList.toggle('bg-cyan-700', ok);
-  });
-
-  // Close popup
-  closeBtn.addEventListener('click', () => {
-    popup.classList.add('hidden');
-    document.body.style.overflow = "auto";
-    if (page) page.classList.remove('hidden');
-  });
-});
-
-// =====================
+  // POPUP-JS-REMOVED
 
 window.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('welcomePopup');
@@ -994,6 +991,34 @@ window.addEventListener('DOMContentLoaded', () => {
   closeBtn.addEventListener('click', () => {
     popup.classList.add('hidden');
     document.body.style.overflow = "auto"; 
+  });
+});
+
+
+// NEW ALWAYS-SHOW POPUP (OPTION C)
+window.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('welcomePopup');
+  const agree = document.getElementById('agreeTerms');
+  const closeBtn = document.getElementById('closePopupBtn');
+  const page = document.getElementById('pageWrapper');
+
+  // Always show, blur background
+  popup.classList.remove('hidden');
+  page.style.filter = "blur(3px)";
+  page.style.pointerEvents = "none";
+
+  agree.addEventListener('change', () => {
+    const ok = agree.checked;
+    closeBtn.disabled = !ok;
+    closeBtn.classList.toggle('cursor-not-allowed', !ok);
+    closeBtn.classList.toggle('bg-slate-300', !ok);
+    closeBtn.classList.toggle('bg-cyan-700', ok);
+  });
+
+  closeBtn.addEventListener('click', () => {
+    popup.classList.add('hidden');
+    page.style.filter = "none";
+    page.style.pointerEvents = "auto";
   });
 });
 
