@@ -5,36 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DIAB-REG Application</title>
 
-  <!-- TailwindCSS CDN -->
-  <script src="https://cdn.tailwindcss.com">
-// NEW ALWAYS-SHOW POPUP (OPTION C)
-window.addEventListener('DOMContentLoaded', () => {
-  const popup = document.getElementById('welcomePopup');
-  const agree = document.getElementById('agreeTerms');
-  const closeBtn = document.getElementById('closePopupBtn');
-  const page = document.getElementById('pageWrapper');
 
-  // Always show, blur background
-  popup.classList.remove('hidden');
-  page.style.filter = "blur(3px)";
-  page.style.pointerEvents = "none";
-
-  agree.addEventListener('change', () => {
-    const ok = agree.checked;
-    closeBtn.disabled = !ok;
-    closeBtn.classList.toggle('cursor-not-allowed', !ok);
-    closeBtn.classList.toggle('bg-slate-300', !ok);
-    closeBtn.classList.toggle('bg-cyan-700', ok);
-  });
-
-  closeBtn.addEventListener('click', () => {
-    popup.classList.add('hidden');
-    page.style.filter = "none";
-    page.style.pointerEvents = "auto";
-  });
-});
-
-</script>
 
   <style>
     body {
